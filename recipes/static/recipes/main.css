@@ -36,45 +36,45 @@ ul {
   margin-bottom: 20px;
 }
 
-.article-title {
+.recipe-title {
   color: #444444;
 }
 
-a.article-title:hover {
+a.recipe-title:hover {
   color: #428bca;
   text-decoration: none;
 }
 
-.article-content {
+.recipe-content {
   white-space: pre-line;
 }
 
-.article-img {
+.recipe-img {
   height: 65px;
   width: 65px;
   margin-right: 16px;
 }
 
-.article-metadata {
+.recipe-metadata {
   padding-bottom: 1px;
   margin-bottom: 4px;
   border-bottom: 1px solid #e3e3e3
 }
 
-.article-metadata a:hover {
+.recipe-metadata a:hover {
   color: #333;
   text-decoration: none;
 }
 
-.article-svg {
+.recipe-svg {
   width: 25px;
   height: 25px;
   vertical-align: middle;
 }
 
-.account-img {
-  height: 125px;
-  width: 125px;
+.recipe-img {
+  height: auto;
+  width: 50%;
   margin-right: 20px;
   margin-bottom: 16px;
 }
