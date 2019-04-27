@@ -1,9 +1,20 @@
 {% extends "recipes/base.html" %}
 {% block content %}
     {% for recipe in recipes %}
-        <h1>{{ recipe.title }}</h1>
-        <h6>Katergorie: {{ recipe.categorie }}</h6>
-        <p>Zutaten: {{ recipe.ingredients }}</p>
-        <p>Zubereitungszeit: {{ recipe.time }}</<p>
+    <article class="media content-section">
+      <div class="media-body">
+        <div class="article-metadata">
+          <a class="mr-2" href="#">{{ recipe.show_categories }}</a>
+          <small class="text-muted">{{ recipe.prep_time }}</small>
+        </div>
+        <h2><a class="article-title" href="#">{{ recipe.title }}</a></h2>
+        <ul>
+          {% for ing in recipe.print_ingredients %}
+              <li>{{ ing }}</li>
+          {% endfor %}
+        </ul>
+        <p class="article-content">{{ recipe.directions }}</p>
+      </div>
+    </article>
     {% endfor %}
 {% endblock content %}
