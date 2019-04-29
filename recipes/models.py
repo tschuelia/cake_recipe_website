@@ -19,7 +19,7 @@ class Recipe(models.Model):
     ingredients = models.TextField()
     directions = models.TextField()
     prep_time = models.CharField(max_length=100)
-    categories = models.ManyToManyField(Category)
+    categories = models.ManyToManyField(Category, blank=True)
     image = models.ImageField(default='default.jpg', upload_to='recipe_pics')
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
