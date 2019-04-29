@@ -4,7 +4,7 @@
       <div class="media-body">
         <div class="recipe-metadata">
           {% for cat in object.get_categories %}
-              <a href="#" class="badge badge-primary">{{ cat.title }}</a>
+              <a href="{% url 'category-recipes' cat.pk %}" class="badge badge-primary">{{ cat.title }}</a>
           {% endfor %}
           <small class="text-muted">{{ object.prep_time }}</small>
           {% if object.author ==  user%}

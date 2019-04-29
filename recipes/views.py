@@ -36,8 +36,8 @@ class CategoryRecipeListView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        cat = get_object_or_404(Category, title=self.kwargs.get('title'))
-        return Recipe.objects.filter(categories__title__contains=cat)
+        cat = get_object_or_404(Category, pk=self.kwargs.get('pk'))
+        return Recipe.objects.filter(categories__pk__contains=cat.pk)
 
 ################################
 # Recipe views
