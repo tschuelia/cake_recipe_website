@@ -5,9 +5,12 @@
       <div class="media-body">
           <div class="recipe-metadata">
             {% for cat in recipe.get_categories %}
-                <a class="mr-2" href="#">{{ cat.title }}</a>
+                <a href="#" class="badge badge-primary">{{ cat.title }}</a>
             {% endfor %}
             <small class="text-muted">{{ recipe.prep_time }}</small>
+            <span style="float:right;">
+                <a class="mr-2" href="#">{{ recipe.author }}</a>
+            </span>
           </div>
           <h2><a class="recipe-title" href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a></h2>
           <img class="recipe-img" src="{{ recipe.image.url }}">

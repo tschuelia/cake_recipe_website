@@ -3,12 +3,15 @@
     <recipe class="media content-section">
       <div class="media-body">
         <div class="recipe-metadata">
-          <a class="mr-2" href="#">{{ object.show_categories }}</a>
+          {% for cat in recipe.get_categories %}
+              <a href="#" class="badge badge-primary">{{ cat.title }}</a>
+          {% endfor %}
           <small class="text-muted">{{ object.prep_time }}</small>
         </div>
         <h2 class="recipe-title">{{ object.title }}</h2>
         <img class="recipe-img" src="{{ recipe.image.url }}">
         <ul>
+          <lh class="ingredients_list">Zutaten</lh>
           {% for ing in object.print_ingredients %}
               <li>{{ ing }}</li>
           {% endfor %}
