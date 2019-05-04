@@ -18,7 +18,7 @@
         <img class="recipe-img" src="{{ recipe.image.url }}">
         <ul>
           <lh class="ingredients_list">Zutaten</lh>
-          {% for ing in object.print_ingredients %}
+          {% for ing in object.get_ingredients %}
               <li>{{ ing }}</li>
           {% endfor %}
         </ul>

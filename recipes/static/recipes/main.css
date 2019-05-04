@@ -40,6 +40,15 @@ ul {
   color: #444444;
 }
 
+.recipe-title-small {
+  color: #777777;
+}
+
+a.recipe-title-small:hover {
+  color: #428bca;
+  text-decoration: none;
+}
+
 a.recipe-title:hover {
   color: #428bca;
   text-decoration: none;
@@ -47,12 +56,6 @@ a.recipe-title:hover {
 
 .recipe-content {
   white-space: pre-line;
-}
-
-.recipe-img {
-  height: 65px;
-  width: 65px;
-  margin-right: 16px;
 }
 
 .recipe-metadata {
@@ -75,6 +78,13 @@ a.recipe-title:hover {
 .recipe-img {
   height: auto;
   width: 50%;
+  margin-right: 20px;
+  margin-bottom: 16px;
+}
+
+.recipe-img-small {
+  height: auto;
+  width: 20%;
   margin-right: 20px;
   margin-bottom: 16px;
 }

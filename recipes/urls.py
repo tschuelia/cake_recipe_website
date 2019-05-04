@@ -8,7 +8,8 @@ from .views import (
     RecipeCreateView,
     RecipeUpdateView,
     RecipeDeleteView,
-    UserRecipeListView
+    UserRecipeListView,
+    RecipeSearchListView
 )
 from . import views
 
@@ -23,5 +24,6 @@ urlpatterns = [
     path('categories/', CategoryListView.as_view(), name='recipes-categories'),
     path('categories/new/', CategoryCreateView.as_view(), name='category-create'),
     path('categories/<int:pk>/', CategoryRecipeListView.as_view(), name='category-recipes'),
-    path('user/<str:username>/', UserRecipeListView.as_view(), name='user-recipes')
+    path('user/<str:username>/', UserRecipeListView.as_view(), name='user-recipes'),
+    path('search/', RecipeSearchListView.as_view(), name='search-results-recipe'),
 ]
