@@ -33,28 +33,13 @@ class Food(models.Model):
     def __str__(self):
         return self.name
 
-
-##################################
-# Ingredient
-##################################
-class Ingredient(models.Model):
-    food = models.ForeignKey(Food, on_delete=models.PROTECT)
-    unit = models.CharField(max_length=20, blank=True)
-    amount = models.DecimalField(max_digits=5, decimal_places=2)
-    notes = models.TextField(blank=True)
-
-    def __str__(self):
-        am = self.amount if self.amount < 0 else int(self.amount)
-        return str(am) + self.unit + " " + self.food.name
-
-
 ##################################
 # Recipe
 ##################################
 
 class Recipe(models.Model):
     title = models.CharField(max_length=200)
-    ingredients = models.ManyToManyField(Ingredient, blank=True)
+    #ingredients = models.ManyToManyField(Ingredient, blank=True)
     directions = models.TextField()
     prep_time = models.CharField(max_length=100)
     categories = models.ManyToManyField(Category, blank=True)
@@ -77,7 +62,25 @@ class Recipe(models.Model):
         return self.categories.all()
 
     def get_ingredients(self):
-        return self.ingredients.all()
+        #return self.ingredients.all()
+        rec = get_object_or_404(Recipe, pk=self.pk)
+        return Ingredient.objects.filter(recipe__pk__contains=rec.pk)
 
     def get_absolute_url(self):
         return reverse('recipe-detail', kwargs={'pk': self.pk})
+
+
+##################################
+# Ingredient
+##################################
+class Ingredient(models.Model):
+    amount = models.DecimalField(max_digits=5, decimal_places=2)
+    unit = models.CharField(max_length=20, blank=True)
+    food = models.ForeignKey(Food, on_delete=models.PROTECT)
+    notes = models.TextField(blank=True)
+    recipe = models.ForeignKey(Recipe, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        am = self.amount if self.amount < 0 else int(self.amount)
+        notes = f'({self.notes})' if len(self.notes) > 0 else ""
+        return f'{str(am)}{self.unit} {self.food.name} {notes}'
