@@ -1,0 +1,28 @@
+{% extends "recipes/base.html" %}
+{% block content %}
+    <recipe class="media content-section">
+      <div class="media-body">
+        <div class="recipe-metadata">
+          {% for cat in object.get_categories %}
+              <a href="{% url 'category-recipes' cat.pk %}" class="badge badge-primary">{{ cat.title }}</a>
+          {% endfor %}
+          <small class="text-muted">{{ object.prep_time }}</small>
+          {% if object.author ==  user%}
+              <span style="float:right;">
+                <a href="{% url 'recipe-update' object.id %}" class="btn btn-secondary btn-sm">Update</a>
+                <a href="{% url 'recipe-delete' object.id %}" class="btn btn-danger btn-sm">Delete</a>
+              </span>
+          {% endif %}
+        </div>
+        <h2 class="recipe-title">{{ object.title }}</h2>
+        <img class="recipe-img" src="{{ recipe.image.url }}">
+        <ul>
+          <lh class="ingredients_list">Zutaten</lh>
+          {% for ing in object.get_ingredients %}
+              <li>{{ ing }}</li>
+          {% endfor %}
+        </ul>
+        <p class="recipe-content">{{ object.directions }}</p>
+      </div>
+    </recipe>
+{% endblock content %}
