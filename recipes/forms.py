@@ -40,6 +40,6 @@ class IngredientForm(forms.ModelForm):
 IngredientFormSet = inlineformset_factory(Recipe, Ingredient, form=IngredientForm, extra=1,
                                             widgets={
                                             'notes':forms.Textarea(attrs={'cols': 20, 'rows': 1}),
-                                            'amount':forms.NumberInput(attrs={'style': 'width:70px'}),
-                                            'unit':forms.TextInput(attrs={'style': 'width:60px'})
+                                            'amount':forms.NumberInput(attrs={'style': 'width:80px'}),
+                                            'unit':forms.TextInput(attrs={'style': 'width:80px'})
                                             })

@@ -43,6 +43,7 @@ class CategoryRecipeListView(ListView):
     template_name = 'recipes/category_recipes.html'
     context_object_name = 'recipes'
     paginate_by = 5
+    ordering = ['title']
 
     def get_queryset(self):
         cat = get_object_or_404(Category, pk=self.kwargs.get('pk'))
@@ -56,6 +57,7 @@ class RecipeListView(ListView):
     template_name = 'recipes/home.html'
     context_object_name = 'recipes'
     paginate_by = 5
+    ordering = ['title']
 
 class RecipeDetailView(DetailView):
     model = Recipe
@@ -76,7 +78,7 @@ def update_recipe(request, pk):
         })
     else: # method == 'POST'
         # Abgeschicktes Formular verarbeiten
-        recipe_form = RecipeForm(request.POST, instance=recipe)
+        recipe_form = RecipeForm(request.POST, request.FILES, instance=recipe)
         ingredients_formset = IngredientFormSet(request.POST, instance=recipe)
         if not recipe_form.is_valid():
             return render(request, 'recipes/recipe_form.html', {
@@ -95,8 +97,6 @@ def update_recipe(request, pk):
         ingredients_formset.save()
 
         return redirect(recipe_obj)
-
-
 
 
 class RecipeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -122,7 +122,7 @@ def create_recipe(request):
         })
     else: # method == 'POST'
         # Abgeschicktes Formular verarbeiten
-        recipe_form = RecipeForm(request.POST)
+        recipe_form = RecipeForm(request.POST, request.FILES)
         ingredients_formset = IngredientFormSet(request.POST)
         if not recipe_form.is_valid():
             return render(request, 'recipes/recipe_form.html', {
@@ -143,8 +143,6 @@ def create_recipe(request):
         return redirect(recipe_obj)
 
 
-
-
 ################################
 # User views
 ################################
@@ -153,6 +151,7 @@ class UserRecipeListView(ListView):
     template_name = 'recipes/user_recipes.html'
     context_object_name = 'recipes'
     paginate_by = 5
+    ordering = ['title']
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))

@@ -50,8 +50,8 @@ class Recipe(models.Model):
         return self.title
 
     # resize big images when uploading
-    def save(self):
-        super().save()
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         img = Image.open(self.image.path)
         if img.height > 1000 or img.width > 1000:
             output_size = (1000, 1000)
@@ -59,7 +59,7 @@ class Recipe(models.Model):
             img.save(self.image.path)
 
     def get_categories(self):
-        return self.categories.all()
+        return self.categories.all().order_by('title')
 
     def get_ingredients(self):
         #return self.ingredients.all()
@@ -78,9 +78,9 @@ class Ingredient(models.Model):
     unit = models.CharField(max_length=20, blank=True)
     food = models.ForeignKey(Food, on_delete=models.PROTECT)
     notes = models.TextField(blank=True)
-    recipe = models.ForeignKey(Recipe, on_delete=models.SET_NULL, null=True)
+    recipe = models.ForeignKey(Recipe, related_name="belongs_to", on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        am = self.amount if self.amount < 0 else int(self.amount)
+        am = self.amount if (self.amount != int(self.amount)) else int(self.amount)
         notes = f'({self.notes})' if len(self.notes) > 0 else ""
         return f'{str(am)}{self.unit} {self.food.name} {notes}'
