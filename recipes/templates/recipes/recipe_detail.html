@@ -12,6 +12,10 @@
     </div>
     <h2 class="recipe-title">{{ object.title }}</h2>
     <img class="recipe-img" src="{{ recipe.image.url }}">
+    <div class="text-muted">
+      Portionen: {{ object.get_servings }}
+    </div>
+    <br/>
     <ul>
       <lh class="ingredients_list">Zutaten</lh>
       {% for ing in object.get_ingredients %}

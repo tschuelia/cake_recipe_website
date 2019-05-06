@@ -6,7 +6,7 @@
     <fieldset class="form-group">
       <legend class="border-bottom mb-4">Neues Rezept</legend>
       <div class="form-group col-md-6 mb-0">
-        {{ form.title|as_crispy_field }} {{ form.prep_time|as_crispy_field }}
+        {{ form.title|as_crispy_field }} {{ form.prep_time|as_crispy_field }} {{ form.servings|as_crispy_field }}
       </div>
       <table>
         {{ ingredients.management_form|crispy }} {% for form in ingredients.forms %}

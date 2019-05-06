@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from random import randint
 
 from PIL import Image
+from fractions import Fraction
 
 
 ##################################
@@ -39,12 +40,12 @@ class Food(models.Model):
 
 class Recipe(models.Model):
     title = models.CharField(max_length=200)
-    #ingredients = models.ManyToManyField(Ingredient, blank=True)
+    servings = models.DecimalField(max_digits=5, decimal_places=2, default=1)
     directions = models.TextField()
     prep_time = models.CharField(max_length=100)
     categories = models.ManyToManyField(Category, blank=True)
     image = models.ImageField(default='default.jpg', upload_to='recipe_pics')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True)
 
     def __str__(self):
         return self.title
@@ -62,12 +63,15 @@ class Recipe(models.Model):
         return self.categories.all().order_by('title')
 
     def get_ingredients(self):
-        #return self.ingredients.all()
         rec = get_object_or_404(Recipe, pk=self.pk)
         return Ingredient.objects.filter(recipe__pk__contains=rec.pk)
 
     def get_absolute_url(self):
         return reverse('recipe-detail', kwargs={'pk': self.pk})
+
+    def get_servings(self):
+        serv = self.servings if (self.servings != int(self.servings)) else int(self.servings)
+        return str(serv)
 
 
 ##################################
@@ -78,9 +82,8 @@ class Ingredient(models.Model):
     unit = models.CharField(max_length=20, blank=True)
     food = models.ForeignKey(Food, on_delete=models.PROTECT)
     notes = models.TextField(blank=True)
-    recipe = models.ForeignKey(Recipe, related_name="belongs_to", on_delete=models.SET_NULL, null=True)
+    recipe = models.ForeignKey(Recipe, related_name="belongs_to", on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        am = self.amount if (self.amount != int(self.amount)) else int(self.amount)
         notes = f'({self.notes})' if len(self.notes) > 0 else ""
-        return f'{str(am)}{self.unit} {self.food.name} {notes}'
+        return f'{str(Fraction(self.amount))}{self.unit} {self.food.name} {notes}'

@@ -38,6 +38,7 @@ class Test(TestCase):
         self.client.login(username='testUser', password='testPassword')
         re = self.client.post('/recipe/new/', {
             'title': 'Rec1',
+            'servings': ['1.00'],
             'belongs_to-TOTAL_FORMS': '1',
             'belongs_to-INITIAL_FORMS': '0',
             'belongs_to-MIN_NUM_FORMS': '0',
@@ -83,14 +84,121 @@ class Test(TestCase):
 
         self.food1 = Food.objects.create(name = 'Food1')
         self.food2 = Food.objects.create(name = 'Food2')
+        self.food3 = Food.objects.create(name = 'Food3')
 
-        self.rec1 = Recipe.objects.create(title = 'Rec1', directions = 'Dir1', prep_time = '1', author=self.user1)
-        self.rec2 = Recipe.objects.create(title = 'Rec2', directions = 'Dir2', prep_time = '2', author=self.user2)
+        self.rec1 = Recipe.objects.create(title = 'Rec1', directions = 'Dir1', prep_time = '1', author=self.user1, servings=1)
+        self.rec2 = Recipe.objects.create(title = 'Rec2', directions = 'Dir2', prep_time = '2', author=self.user2, servings=2)
         self.rec1.categories.add(self.cat1)
         self.rec2.categories.add(self.cat2)
 
         self.ing1 = Ingredient.objects.create(amount = 1, unit = 'testUnit1', food = self.food1, notes='', recipe=self.rec1)
         self.ing2 = Ingredient.objects.create(amount = 2, unit = 'testUnit2', food = self.food2, notes='TestNote', recipe=self.rec2)
+
+
+    def test_ingredient_creation_on_update(self):
+        self.create_dummy_data()
+        self.client.login(username='testUser', password='testPassword')
+        re = self.client.post(f'/recipe/{self.rec1.pk}/update/', {
+            'title': self.rec1.title,
+            'prep_time': self.rec1.prep_time,
+            'servings': self.rec1.servings,
+            'belongs_to-TOTAL_FORMS': '2',
+            'belongs_to-INITIAL_FORMS': '1',
+            'belongs_to-MIN_NUM_FORMS': '0',
+            'belongs_to-MAX_NUM_FORMS': '1000',
+            'belongs_to-0-id': self.ing1.pk,
+            'belongs_to-0-recipe': self.rec1.pk,
+            'belongs_to-0-amount': self.ing1.amount,
+            'belongs_to-0-unit': self.ing1.unit,
+            'belongs_to-0-food_name': self.ing1.food.name,
+            'belongs_to-0-notes': '',
+            'belongs_to-0-DELETE': '',
+            'belongs_to-1-id': '',
+            'belongs_to-1-recipe': self.rec1.pk,
+            'belongs_to-1-amount': '3',
+            'belongs_to-1-unit': 'testUnit3',
+            'belongs_to-1-food_name': 'Food3',
+            'belongs_to-1-notes': '',
+            'belongs_to-1-DELETE': '',
+            'directions': self.rec1.directions,
+            'categories': self.cat1.pk,
+            'image': ''
+        })
+        # add only one new ingredient to recipe with one ingredient set -> 2 ingredients
+        self.assertEqual(len(Ingredient.objects.filter(recipe=self.rec1.pk)), 2)
+        self.assertEqual(len(Food.objects.all()), 3)
+
+    def test_ingredient_deletion_on_update(self):
+        self.create_dummy_data()
+        ing3 = Ingredient.objects.create(amount = 3, unit = 'testUnit3', food = self.food3, notes='TestNote', recipe=self.rec1)
+        self.assertEqual(len(Ingredient.objects.filter(recipe=self.rec1.pk)), 2)
+        self.client.login(username='testUser', password='testPassword')
+        re = self.client.post(f'/recipe/{self.rec1.pk}/update/', {
+            'title': self.rec1.title,
+            'prep_time': self.rec1.prep_time,
+            'servings': self.rec1.servings,
+            'belongs_to-TOTAL_FORMS': '3',
+            'belongs_to-INITIAL_FORMS': '2',
+            'belongs_to-MIN_NUM_FORMS': '0',
+            'belongs_to-MAX_NUM_FORMS': '1000',
+            'belongs_to-0-id': self.ing1.pk,
+            'belongs_to-0-recipe': self.rec1.pk,
+            'belongs_to-0-amount': self.ing1.amount,
+            'belongs_to-0-unit': self.ing1.unit,
+            'belongs_to-0-food_name': self.ing1.food.name,
+            'belongs_to-0-notes': '',
+            'belongs_to-0-DELETE': '',
+            'belongs_to-1-id': ing3.pk,
+            'belongs_to-1-recipe': self.rec1.pk,
+            'belongs_to-1-amount': ing3.amount,
+            'belongs_to-1-unit': ing3.unit,
+            'belongs_to-1-food_name': ing3.food.name,
+            'belongs_to-1-notes': '',
+            'belongs_to-1-DELETE': 'on',
+            'directions': self.rec1.directions,
+            'categories': self.cat1.pk,
+            'image': ''
+        })
+        self.assertEqual(len(self.rec1.get_ingredients()), 1)
+        self.assertEqual(len(Ingredient.objects.filter(recipe=self.rec1.pk)), 1)
+
+
+    def test_ingredient_alteration_on_update(self):
+        self.create_dummy_data()
+        ing3 = Ingredient.objects.create(amount = 3, unit = 'testUnit3', food = self.food3, notes='TestNote', recipe=self.rec1)
+        self.assertEqual(len(Ingredient.objects.filter(recipe=self.rec1.pk)), 2)
+        self.client.login(username='testUser', password='testPassword')
+        re = self.client.post(f'/recipe/{self.rec1.pk}/update/', {
+            'title': self.rec1.title,
+            'prep_time': self.rec1.prep_time,
+            'servings': self.rec1.servings,
+            'belongs_to-TOTAL_FORMS': '3',
+            'belongs_to-INITIAL_FORMS': '2',
+            'belongs_to-MIN_NUM_FORMS': '0',
+            'belongs_to-MAX_NUM_FORMS': '1000',
+            'belongs_to-0-id': self.ing1.pk,
+            'belongs_to-0-recipe': self.rec1.pk,
+            'belongs_to-0-amount': self.ing1.amount,
+            'belongs_to-0-unit': self.ing1.unit,
+            'belongs_to-0-food_name': self.ing1.food.name,
+            'belongs_to-0-notes': '',
+            'belongs_to-0-DELETE': '',
+            'belongs_to-1-id': ing3.pk,
+            'belongs_to-1-recipe': self.rec1.pk,
+            'belongs_to-1-amount': 4,
+            'belongs_to-1-unit': 'TestUnit4',
+            'belongs_to-1-food_name': 'Food4',
+            'belongs_to-1-notes': '',
+            'belongs_to-1-DELETE': '',
+            'directions': self.rec1.directions,
+            'categories': self.cat1.pk,
+            'image': ''
+        })
+        self.assertEqual(len(self.rec1.get_ingredients()), 2)
+        ing = Ingredient.objects.get(unit = 'TestUnit4')
+        self.assertEqual(ing.amount, 4)
+        self.assertEqual(ing.unit, 'TestUnit4')
+
 
     def test_user_can_not_update_others_recipes(self):
         self.create_dummy_data()
