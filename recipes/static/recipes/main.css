@@ -103,3 +103,7 @@ a.recipe-title:hover {
 .ingredients_list {
   font-weight: bold;
 }
+
+.servings {
+  width: 50px;
+}

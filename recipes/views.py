@@ -8,6 +8,8 @@ from django.urls import reverse_lazy
 from django.db import transaction
 from django.core.exceptions import PermissionDenied
 
+from decimal import Decimal
+
 
 from django.views.generic import (
     ListView,
@@ -59,9 +61,24 @@ class RecipeListView(ListView):
     paginate_by = 5
     ordering = ['title']
 
-class RecipeDetailView(DetailView):
-    model = Recipe
 
+def recipe_detail(request, pk):
+    recipe = Recipe.objects.get(pk=pk)
+    ingredients = recipe.get_ingredients
+    servings = recipe.get_servings
+    return render(request, 'recipes/recipe_detail.html', {'object': recipe, 'ingredients':ingredients, 'servings':servings})
+
+def recipe_convert_servings(request, pk):
+    recipe = Recipe.objects.get(pk=pk)
+    ingredients = recipe.get_ingredients()
+    servings_original = recipe.servings
+    servings_desired = Decimal(request.GET.get('number_servings'))
+    new_ingredients = []
+    for ing in ingredients:
+        amount_original = ing.amount
+        amount_new = (amount_original / servings_original) * servings_desired
+        new_ingredients.append(Ingredient(amount=amount_new, unit=ing.unit, food=ing.food, notes=ing.notes, recipe=None))
+    return render(request, 'recipes/recipe_detail.html', {'object': recipe, 'ingredients': new_ingredients, 'servings':servings_desired})
 
 @login_required
 def update_recipe(request, pk):

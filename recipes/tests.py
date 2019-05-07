@@ -16,21 +16,31 @@ class Test(TestCase):
         '''
         Test whether IngredientForm.save() works properly and saves Ingrdient and Food in case both did not exist yet
         '''
-        self.assertEqual(len(Ingredient.objects.all()), 0)
-        self.assertEqual(len(Food.objects.all()), 0)
+        self.assertEqual(Ingredient.objects.all().count(), 0)
+        self.assertEqual(Food.objects.all().count(), 0)
 
         ingredient_data = {'amount': 500, 'unit': 'g', 'food_name': 'Mehl', 'notes':'Note'}
         form = IngredientForm(data=ingredient_data)
         form.save(True)
-        self.assertEqual(len(Ingredient.objects.all()), 1)
-        self.assertEqual(len(Food.objects.all()), 1)
-        food = Food.objects.first()
+
+        self.assertEqual(Ingredient.objects.all().count(), 1)
+        self.assertEqual(Food.objects.all().count(), 1)
+
+        food = Food.objects.get(name = 'Mehl')
         self.assertEqual(food.name, 'Mehl')
-        ing = Ingredient.objects.first()
+
+        ing = Ingredient.objects.get(amount = 500, unit = 'g')
         self.assertEqual(ing.amount, 500)
         self.assertEqual(ing.unit, 'g')
         self.assertEqual(ing.notes, 'Note')
         self.assertEqual(ing.food, food)
+
+        # test whether food object is created only once
+        form = IngredientForm(data=ingredient_data)
+        form.save(True)
+        self.assertEqual(Food.objects.all().count(), 1)
+
+
 
     def test_create_recipe_view(self):
         cat1 = Category.objects.create(title = 'Cat1')
@@ -61,12 +71,12 @@ class Test(TestCase):
         self.assertEqual(recipe.author, user)
         self.assertEqual(recipe.image, 'default.jpg')
 
-        self.assertEqual(len(Food.objects.all()), 1)
-        food = Food.objects.first()
+        self.assertEqual(Food.objects.all().count(), 1)
+        food = Food.objects.get(name='TestFood')
         self.assertEqual(food.name, 'TestFood')
 
-        self.assertEqual(len(Ingredient.objects.all()), 1)
-        ing = Ingredient.objects.first()
+        self.assertEqual(Ingredient.objects.all().count(), 1)
+        ing = Ingredient.objects.get(amount=100, unit='TestUnit')
         self.assertEqual(ing.amount, 100)
         self.assertEqual(ing.unit, 'TestUnit')
         self.assertEqual(ing.notes, 'TestNote')
@@ -125,13 +135,13 @@ class Test(TestCase):
             'image': ''
         })
         # add only one new ingredient to recipe with one ingredient set -> 2 ingredients
-        self.assertEqual(len(Ingredient.objects.filter(recipe=self.rec1.pk)), 2)
-        self.assertEqual(len(Food.objects.all()), 3)
+        self.assertEqual(Ingredient.objects.filter(recipe=self.rec1.pk).count(), 2)
+        self.assertEqual(Food.objects.all().count(), 3)
 
     def test_ingredient_deletion_on_update(self):
         self.create_dummy_data()
         ing3 = Ingredient.objects.create(amount = 3, unit = 'testUnit3', food = self.food3, notes='TestNote', recipe=self.rec1)
-        self.assertEqual(len(Ingredient.objects.filter(recipe=self.rec1.pk)), 2)
+        self.assertEqual(Ingredient.objects.filter(recipe=self.rec1.pk).count(), 2)
         self.client.login(username='testUser', password='testPassword')
         re = self.client.post(f'/recipe/{self.rec1.pk}/update/', {
             'title': self.rec1.title,
@@ -159,14 +169,14 @@ class Test(TestCase):
             'categories': self.cat1.pk,
             'image': ''
         })
-        self.assertEqual(len(self.rec1.get_ingredients()), 1)
-        self.assertEqual(len(Ingredient.objects.filter(recipe=self.rec1.pk)), 1)
+        self.assertEqual(self.rec1.get_ingredients().count(), 1)
+        self.assertEqual(Ingredient.objects.filter(recipe=self.rec1.pk).count(), 1)
 
 
     def test_ingredient_alteration_on_update(self):
         self.create_dummy_data()
         ing3 = Ingredient.objects.create(amount = 3, unit = 'testUnit3', food = self.food3, notes='TestNote', recipe=self.rec1)
-        self.assertEqual(len(Ingredient.objects.filter(recipe=self.rec1.pk)), 2)
+        self.assertEqual(Ingredient.objects.filter(recipe=self.rec1.pk).count(), 2)
         self.client.login(username='testUser', password='testPassword')
         re = self.client.post(f'/recipe/{self.rec1.pk}/update/', {
             'title': self.rec1.title,
@@ -194,7 +204,7 @@ class Test(TestCase):
             'categories': self.cat1.pk,
             'image': ''
         })
-        self.assertEqual(len(self.rec1.get_ingredients()), 2)
+        self.assertEqual(self.rec1.get_ingredients().count(), 2)
         ing = Ingredient.objects.get(unit = 'TestUnit4')
         self.assertEqual(ing.amount, 4)
         self.assertEqual(ing.unit, 'TestUnit4')
@@ -224,6 +234,6 @@ class Test(TestCase):
     def test_user_can_delete_own_recipes(self):
         self.create_dummy_data()
         self.client.login(username='testUser', password='testPassword')
-        url = f'/recipe/{self.rec1.pk}/update/'
+        url = f'/recipe/{self.rec1.pk}/delete/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)

@@ -11,14 +11,15 @@
               </span> {% endif %}
     </div>
     <h2 class="recipe-title">{{ object.title }}</h2>
-    <img class="recipe-img" src="{{ recipe.image.url }}">
-    <div class="text-muted">
-      Portionen: {{ object.get_servings }}
-    </div>
+    <img class="recipe-img" src="{{ object.image.url }}">
+    <form class="text-muted" action="{% url 'recipe-convert-servings' object.pk%}" method="get">
+      Portionen: <input class="servings input-sm " type="number" name="number_servings" value="{{ servings }}">
+      <button type="submit" class="btn btn-outline-info btn-sm">Umrechnen</button>
+    </form>
     <br/>
     <ul>
       <lh class="ingredients_list">Zutaten</lh>
-      {% for ing in object.get_ingredients %}
+      {% for ing in ingredients %}
       <li>{{ ing }}</li>
       {% endfor %}
     </ul>
