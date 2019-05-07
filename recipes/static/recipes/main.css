@@ -107,3 +107,11 @@ a.recipe-title:hover {
 .servings {
   width: 50px;
 }
+
+.servings-create-view {
+  width: 60px;
+}
+
+.prep-time {
+  width: 300px;
+}

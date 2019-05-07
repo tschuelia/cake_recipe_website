@@ -18,7 +18,7 @@ class RecipeForm(forms.ModelForm):
             }
 
 class IngredientForm(forms.ModelForm):
-    food_name = forms.CharField(label='food', required=True)
+    food_name = forms.CharField(label='Lebensmittel', required=True)
     class Meta:
         model = Ingredient
         fields = ['amount', 'unit', 'food_name', 'notes']
