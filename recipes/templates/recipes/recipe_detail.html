@@ -13,7 +13,7 @@
     <h2 class="recipe-title">{{ object.title }}</h2>
     <img class="recipe-img" src="{{ object.image.url }}">
     <form class="text-muted" action="{% url 'recipe-convert-servings' object.pk%}" method="get">
-      Portionen: <input class="servings input-sm" type="number" name="number_servings" value="{{ servings }}">
+      Portionen: <input class="servings input-sm" type="number" step="any" name="number_servings" value="{{ servings }}">
       <button type="submit" class="btn btn-outline-info btn-sm">Umrechnen</button>
     </form>
     <br/>
