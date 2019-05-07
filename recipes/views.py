@@ -51,6 +51,7 @@ class CategoryRecipeListView(ListView):
         cat = get_object_or_404(Category, pk=self.kwargs.get('pk'))
         return Recipe.objects.filter(categories__pk__contains=cat.pk)
 
+
 ################################
 # Recipe views
 ################################

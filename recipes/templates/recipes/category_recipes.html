@@ -1,42 +1,24 @@
-{% extends "recipes/base.html" %}
-{% block content %}
-    <h1 class="mb-3">Rezepte der Kategorie [] ({{ page_obj.paginator.count }})</h1>
-    {% for recipe in recipes %}
-    <recipe class="media content-section">
-      <div class="media-body">
-          <div class="recipe-metadata">
-            {% for cat in recipe.get_categories %}
-                <a href="{% url 'category-recipes' cat.pk %}" class="badge badge-primary">{{ cat.title }}</a>
-            {% endfor %}
-            <small class="text-muted">{{ recipe.prep_time }}</small>
-            <span style="float:right;">
+{% extends "recipes/base.html" %} {% block content %}
+<h1 class="mb-3">Recipes for Category [] ({{ page_obj.paginator.count }})</h1> {% for recipe in recipes %}
+<recipe class="media content-section">
+  <div class="media-body">
+    <div class="recipe-metadata">
+      {% for cat in recipe.get_categories %}
+      <a href="{% url 'category-recipes' cat.pk %}" class="badge badge-primary">{{ cat.title }}</a> {% endfor %}
+      <small class="text-muted">{{ recipe.prep_time }}</small>
+      <span style="float:right;">
                 <a class="mr-2" href="{% url 'user-recipes' recipe.author.username%}">{{ recipe.author }}</a>
             </span>
-          </div>
-          <h2><a class="recipe-title" href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a></h2>
-          <img class="recipe-img" src="{{ recipe.image.url }}">
-        </div>
-    </recipe>
-    {% endfor %}
-    {% if is_paginated %}
-
-      {% if page_obj.has_previous %}
-        <a class="btn btn-outline-info mb-4 oi oi-media-step-backward" href="?page=1"></a>
-        <a class="btn btn-outline-info mb-4 oi oi-chevron-left" href="?page={{ page_obj.previous_page_number }}"></a>
-      {% endif %}
-
-      {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
-          <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-          <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
-        {% endif %}
-      {% endfor %}
-
-      {% if page_obj.has_next %}
-        <a class="btn btn-outline-info mb-4 oi oi-chevron-right" href="?page={{ page_obj.next_page_number }}"></a>
-        <a class="btn btn-outline-info mb-4 oi oi-media-step-forward" href="?page={{ page_obj.paginator.num_pages }}"></a>
-      {% endif %}
-
-    {% endif %}
-{% endblock content %}
+    </div>
+    <h2><a class="recipe-title" href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a></h2>
+    <img class="recipe-img" src="{{ recipe.image.url }}">
+  </div>
+</recipe>
+{% endfor %} {% if is_paginated %} {% if page_obj.has_previous %}
+<a class="btn btn-outline-info mb-4 oi oi-media-step-backward" href="?page=1"></a>
+<a class="btn btn-outline-info mb-4 oi oi-chevron-left" href="?page={{ page_obj.previous_page_number }}"></a> {% endif %} {% for num in page_obj.paginator.page_range %} {% if page_obj.number == num %}
+<a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a> {% elif num > page_obj.number|add:'-3' and num
+< page_obj.number|add: '3' %} <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+  {% endif %} {% endfor %} {% if page_obj.has_next %}
+  <a class="btn btn-outline-info mb-4 oi oi-chevron-right" href="?page={{ page_obj.next_page_number }}"></a>
+  <a class="btn btn-outline-info mb-4 oi oi-media-step-forward" href="?page={{ page_obj.paginator.num_pages }}"></a> {% endif %} {% endif %} {% endblock content %}

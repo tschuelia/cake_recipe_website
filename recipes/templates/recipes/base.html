@@ -31,14 +31,14 @@
         <div class="collapse navbar-collapse" id="navbarToggle">
           <div class="navbar-nav mr-auto">
             <a class="nav-item nav-link" href="{% url 'recipes-home' %}">Home</a>
-            <a class="nav-item nav-link" href="{% url 'recipes-categories' %}">Kategorien</a>
+            <a class="nav-item nav-link" href="{% url 'recipes-categories' %}">Categories</a>
             <a class="nav-item nav-link" href="{% url 'recipes-about' %}">About</a>
           </div>
           <!-- navbar right side -->
           <div class="navbar-nav">
             {% if user.is_authenticated %}
-            <a class="nav-item nav-link" href="{% url 'recipe-create' %}">Neues Rezept</a>
-            <a class="nav-item nav-link" href="{% url 'profile' %}">Profil</a>
+            <a class="nav-item nav-link" href="{% url 'recipe-create' %}">New Recipe</a>
+            <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
             <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a> {% else %}
             <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
             <a class="nav-item nav-link" href="{% url 'register' %}">Sign Up</a> {% endif %}

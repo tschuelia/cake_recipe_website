@@ -13,7 +13,7 @@ from fractions import Fraction
 ##################################
 
 class Category(models.Model):
-    title = models.CharField(max_length=200, unique=True, verbose_name="Kategorie-Titel")
+    title = models.CharField(max_length=200, unique=True, verbose_name="Title")
 
     def __str__(self):
         return self.title
@@ -29,7 +29,7 @@ class Category(models.Model):
 # Food
 ##################################
 class Food(models.Model):
-    name = models.CharField(max_length=200, unique=True, verbose_name="Lebensmittel")
+    name = models.CharField(max_length=200, unique=True, verbose_name="Food")
 
     def __str__(self):
         return self.name
@@ -39,12 +39,12 @@ class Food(models.Model):
 ##################################
 
 class Recipe(models.Model):
-    title = models.CharField(max_length=200, verbose_name="Rezept-Titel")
-    servings = models.DecimalField(max_digits=5, decimal_places=2, default=1, verbose_name="Portionen")
-    directions = models.TextField(verbose_name="Zubereitung")
-    prep_time = models.CharField(max_length=100, verbose_name="Zubereitungszeit")
-    categories = models.ManyToManyField(Category, blank=True, verbose_name="Kategorien")
-    image = models.ImageField(default='default.jpg', upload_to='recipe_pics', verbose_name="Bild")
+    title = models.CharField(max_length=200, verbose_name="Title")
+    servings = models.DecimalField(max_digits=5, decimal_places=2, default=1, verbose_name="Servings")
+    directions = models.TextField(verbose_name="Directions")
+    prep_time = models.CharField(max_length=100, verbose_name="Prep time")
+    categories = models.ManyToManyField(Category, blank=True, verbose_name="Categories")
+    image = models.ImageField(default='default.jpg', upload_to='recipe_pics', verbose_name="Image")
     author = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True)
 
     def __str__(self):
@@ -78,10 +78,10 @@ class Recipe(models.Model):
 # Ingredient
 ##################################
 class Ingredient(models.Model):
-    amount = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Anzahl")
-    unit = models.CharField(max_length=20, blank=True, verbose_name="Einheit")
-    food = models.ForeignKey(Food, on_delete=models.PROTECT, verbose_name="Lebensmittel")
-    notes = models.TextField(blank=True, verbose_name="Anmerkungen")
+    amount = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Amount")
+    unit = models.CharField(max_length=20, blank=True, verbose_name="Unit")
+    food = models.ForeignKey(Food, on_delete=models.PROTECT, verbose_name="Food")
+    notes = models.TextField(blank=True, verbose_name="Notes")
     recipe = models.ForeignKey(Recipe, related_name="belongs_to", on_delete=models.CASCADE, null=True)
 
     def __str__(self):

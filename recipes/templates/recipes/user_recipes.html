@@ -1,5 +1,5 @@
 {% extends "recipes/base.html" %} {% block content %}
-<h1 class="mb-3">Rezepte von {{ view.kwargs.username }} ({{ page_obj.paginator.count }})</h1> {% for recipe in recipes %}
+<h1 class="mb-3">Recipes of user {{ view.kwargs.username }} ({{ page_obj.paginator.count }})</h1> {% for recipe in recipes %}
 <recipe class="media content-section">
   <div class="media-body">
     <div class="recipe-metadata">
