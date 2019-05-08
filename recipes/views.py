@@ -9,20 +9,17 @@ from django.db import transaction
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 
-
 from decimal import Decimal
-
+from random import randint
 
 from django.views.generic import (
     ListView,
-    DetailView,
     CreateView,
-    UpdateView,
     DeleteView
 )
+
 from .models import Recipe, Category, Ingredient, Food
 from .forms import RecipeForm, IngredientFormSet
-from random import randint
 
 ################################
 # Category views
@@ -33,6 +30,7 @@ class CategoryListView(ListView):
     template_name = 'recipes/categories.html'
     context_object_name = 'categories'
     ordering = ['title']
+    paginate_by = 15
 
 class CategoryCreateView(CreatePopupMixin, LoginRequiredMixin, CreateView):
     model = Category

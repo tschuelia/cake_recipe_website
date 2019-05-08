@@ -9,4 +9,8 @@
     {% endif %}
   </div>
 </recipe>
-{% endfor %} {% endblock content %}
+{% endfor %}
+{% if is_paginated %}
+    {% include "recipes/pagination.html" %}
+{% endif %}
+{% endblock content %}

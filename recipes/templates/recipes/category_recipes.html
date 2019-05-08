@@ -15,23 +15,7 @@
   </div>
 </recipe>
 {% endfor %}
-
-    {% if recipes.has_previous %}
-      <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
-      <a class="btn btn-outline-info mb-4" href="?page={{ recipes.previous_page_number }}">Previous</a>
-    {% endif %}
-
-    {% for num in recipes.paginator.page_range %}
-      {% if recipes.number == num %}
-        <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
-      {% elif num > recipes.number|add:'-3' and num < recipes.number|add:'3' %}
-        <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
-      {% endif %}
-    {% endfor %}
-
-    {% if recipes.has_next %}
-      <a class="btn btn-outline-info mb-4" href="?page={{ recipes.next_page_number }}">Next</a>
-      <a class="btn btn-outline-info mb-4" href="?page={{ recipes.paginator.num_pages }}">Last</a>
-    {% endif %}
-
+{% if recipes.paginator.num_pages > 1 %}
+  {% include "recipes/pagination.html" with page_obj=recipes %}
+{% endif %}
 {% endblock content %}
