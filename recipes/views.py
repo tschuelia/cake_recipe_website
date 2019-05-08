@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse_lazy
 from django.db import transaction
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
+
 
 from decimal import Decimal
 
@@ -40,16 +42,14 @@ class CategoryCreateView(CreatePopupMixin, LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-class CategoryRecipeListView(ListView):
-    model = Recipe
-    template_name = 'recipes/category_recipes.html'
-    context_object_name = 'recipes'
-    paginate_by = 5
-    ordering = ['title']
-
-    def get_queryset(self):
-        cat = get_object_or_404(Category, pk=self.kwargs.get('pk'))
-        return Recipe.objects.filter(categories__pk__contains=cat.pk)
+def category_recipe_view(request, pk):
+    cat = get_object_or_404(Category, pk=pk)
+    cat_title = cat.title
+    recipe_list = Recipe.objects.filter(categories__pk__contains=cat.pk).order_by('title')
+    paginator = Paginator(recipe_list, 5)
+    page = request.GET.get('page')
+    recipes = paginator.get_page(page)
+    return render(request, 'recipes/category_recipes.html', {'recipes':recipes, 'cat_title':cat_title})
 
 
 ################################
