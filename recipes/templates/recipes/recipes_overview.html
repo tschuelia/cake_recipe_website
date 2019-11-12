@@ -1,0 +1,50 @@
+{% extends "recipes/base.html" %} 
+{% block content %} 
+<div class="row">
+  {% for recipe in recipes %}
+  <div class="col-md-4 mb-4">
+    <div class="recipe-overview">
+      <img src="{{ recipe.get_first_image.get_url }}" class="recipe-img">
+      <div>
+        <a class="h5 recipe-title" href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a>
+        <hr class="separator">
+        <p class="recipe-description">Text</p>
+        <hr class="separator">
+        <div class="row">
+          <div class="col-md-6">
+              <span class="recipe-preptime">{{ recipe.prep_time }}</span>
+          </div>
+          <div class="col-md-6">
+              <a class="recipe-author" href="{% url 'user-recipes' recipe.author.username%}">{{ recipe.author }}</a>
+          </div>
+        </div>
+      </div>
+      <hr class="separator-categories">
+      <div class="recipe-categories">
+        {% for cat in recipe.get_categories %}
+          <a href="{% url 'category-recipes' cat.pk %}" class="badge category-tag">{{ cat.title }}</a> 
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+<!-- <recipe class="media content-section card-deck">
+  <div class="media-body">
+    <div class="recipe-metadata">
+      {% for cat in recipe.get_categories %}
+      <a href="{% url 'category-recipes' cat.pk %}" class="badge badge-primary">{{ cat.title }}</a> {% endfor %}
+      <small class="text-muted">{{ recipe.prep_time }}</small>
+      <span style="float:right;">
+                <a class="mr-2 author" href="{% url 'user-recipes' recipe.author.username%}">{{ recipe.author }}</a>
+            </span>
+    </div>
+    <h2><a class="recipe-title" href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a></h2>
+    <img class="recipe-img" src="{{ recipe.get_first_image.get_url }}">
+  </div>
+</recipe> -->
+{% endfor %}
+</div>
+
+{% if is_paginated %}
+    {% include "recipes/pagination.html" %}
+{% endif %}
+{% endblock content %}

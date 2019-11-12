@@ -19,7 +19,7 @@ from django.views.generic import (
 )
 
 from .models import Recipe, Category, Ingredient, Food
-from .forms import RecipeForm, IngredientFormSet
+from .forms import RecipeForm, IngredientFormSet, ImageForm
 
 ################################
 # Category views
@@ -47,7 +47,7 @@ def category_recipe_view(request, pk):
     paginator = Paginator(recipe_list, 5)
     page = request.GET.get('page')
     recipes = paginator.get_page(page)
-    return render(request, 'recipes/category_recipes.html', {'recipes':recipes, 'cat_title':cat_title})
+    return render(request, 'recipes/recipes_overview.html', {'recipes':recipes, 'cat_title':cat_title})
 
 
 ################################
@@ -55,17 +55,18 @@ def category_recipe_view(request, pk):
 ################################
 class RecipeListView(ListView):
     model = Recipe
-    template_name = 'recipes/home.html'
+    template_name = 'recipes/recipes_overview.html'
     context_object_name = 'recipes'
-    paginate_by = 5
+    paginate_by = 12
     ordering = ['title']
 
 
 def recipe_detail(request, pk):
     recipe = Recipe.objects.get(pk=pk)
     ingredients = recipe.get_ingredients
+    images = recipe.get_images
     servings = recipe.get_servings
-    return render(request, 'recipes/recipe_detail.html', {'object': recipe, 'ingredients':ingredients, 'servings':servings})
+    return render(request, 'recipes/recipe_detail.html', {'object': recipe, 'images': images, 'ingredients':ingredients, 'servings':servings})
 
 def recipe_convert_servings(request, pk):
     recipe = Recipe.objects.get(pk=pk)
@@ -87,27 +88,35 @@ def update_recipe(request, pk):
     if request.method == 'GET':
         # Anzeigen
         recipe_form = RecipeForm(instance=recipe)
+        image_form = ImageForm()
         ingredients_formset = IngredientFormSet(instance=recipe)
         return render(request, 'recipes/recipe_form.html', {
             'form': recipe_form,
+            'image': image_form,
             'ingredients': ingredients_formset,
         })
     else: # method == 'POST'
         # Abgeschicktes Formular verarbeiten
-        recipe_form = RecipeForm(request.POST, request.FILES, instance=recipe)
+        recipe_form = RecipeForm(request.POST, instance=recipe)
+        image_form = ImageForm()
         ingredients_formset = IngredientFormSet(request.POST, instance=recipe)
         if not recipe_form.is_valid():
             return render(request, 'recipes/recipe_form.html', {
                 'form': recipe_form,
+                'image': image_form,
                 'ingredients': ingredients_formset,
             })
         if not ingredients_formset.is_valid():
             return render(request, 'recipes/recipe_form.html', {
                 'form': recipe_form,
+                'image': image_form,
                 'ingredients': ingredients_formset,
             })
         recipe_form.instance.author = request.user
         recipe_obj = recipe_form.save()
+
+        image_form.instance.recipe = recipe_obj
+        image_form.save()
 
         ingredients_formset.instance = recipe_obj
         ingredients_formset.save()
@@ -131,30 +140,39 @@ def create_recipe(request):
     if request.method == 'GET':
         # Anzeigen
         recipe_form = RecipeForm()
+        image_form = ImageForm()
         ingredients_formset = IngredientFormSet()
         return render(request, 'recipes/recipe_form.html', {
             'form': recipe_form,
+            'image': image_form,
             'ingredients': ingredients_formset,
         })
     else: # method == 'POST'
         # Abgeschicktes Formular verarbeiten
-        recipe_form = RecipeForm(request.POST, request.FILES)
+        recipe_form = RecipeForm(request.POST)
         ingredients_formset = IngredientFormSet(request.POST)
+        image_form = ImageForm(request.POST)
         if not recipe_form.is_valid():
             return render(request, 'recipes/recipe_form.html', {
                 'form': recipe_form,
+                'image': image_form,
                 'ingredients': ingredients_formset,
             })
         if not ingredients_formset.is_valid():
             return render(request, 'recipes/recipe_form.html', {
                 'form': recipe_form,
+                'image': image_form,
                 'ingredients': ingredients_formset,
             })
         recipe_form.instance.author = request.user
         recipe_obj = recipe_form.save()
 
+        image_form.instance.recipe = recipe_obj
+        image_form.save()
+
         ingredients_formset.instance = recipe_obj
         ingredients_formset.save()
+
 
         return redirect(recipe_obj)
 
@@ -164,9 +182,9 @@ def create_recipe(request):
 ################################
 class UserRecipeListView(ListView):
     model = Recipe
-    template_name = 'recipes/user_recipes.html'
+    template_name = 'recipes/recipes_overview.html'
     context_object_name = 'recipes'
-    paginate_by = 5
+    paginate_by = 12
     ordering = ['title']
 
     def get_queryset(self):
@@ -182,9 +200,9 @@ class RecipeSearchListView(RecipeListView):
     Display a Recipe List page filtered by the search query.
     """
     model = Recipe
-    template_name = 'recipes/search_results_recipes.html'
+    template_name = 'recipes/recipes_overview.html'
     context_object_name = 'recipes'
-    paginate_by = 5
+    paginate_by = 12
 
     def get_queryset(self):
         result = super(RecipeSearchListView, self).get_queryset()
