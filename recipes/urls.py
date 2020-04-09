@@ -3,7 +3,6 @@ from .views import (
     RecipeListView,
     CategoryCreateView,
     RecipeDeleteView,
-    UserRecipeListView,
     RecipeSearchListView,
 )
 from . import views
@@ -23,6 +22,6 @@ urlpatterns = [
     path("categories/", views.categories_overview, name="recipes-categories"),
     path("categories/new/", CategoryCreateView.as_view(), name="category-create"),
     path("categories/<int:pk>/", views.category_recipe_view, name="category-recipes"),
-    path("user/<str:username>/", UserRecipeListView.as_view(), name="user-recipes"),
+    path("user/<str:username>/", views.recipes_for_user, name="user-recipes"),
     path("search/", RecipeSearchListView.as_view(), name="search-results-recipe"),
 ]

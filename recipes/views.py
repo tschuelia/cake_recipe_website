@@ -250,21 +250,13 @@ def create_recipe(request):
 ################################
 # User views
 ################################
-class UserRecipeListView(ListView):
-    model = Recipe
-    template_name = "recipes/recipes_overview.html"
-    context_object_name = "recipes"
-    paginate_by = 12
-    ordering = ["title"]
-
-    def get_queryset(self):
-        user = get_object_or_404(User, username=self.kwargs.get("username"))
-        return Recipe.objects.filter(author=user)
-
-
-def about(request):
-    return render(request, "recipes/about.html", {"title": "About"})
-
+def recipes_for_user(request, username):
+    recipes = Recipe.objects.filter(author__username=username)
+    return render(
+        request,
+        "recipes/recipes_overview.html",
+        {"recipes": recipes, "username": username},
+    )
 
 ####################
 class RecipeSearchListView(RecipeListView):

@@ -25,7 +25,14 @@
         <tr class="{% cycle 'row1' 'row2' %} formset_row-{{ ingredients.prefix }}">
           {% for field in form.visible_fields %}
           <td>
-            {# Include the hidden fields in the form #} {% if forloop.first %} {% for hidden in form.hidden_fields %} {{ hidden }} {% endfor %} {% endif %} {{ field.errors.as_ul }} {{ field|as_crispy_field }}
+            {# Include the hidden fields in the form #} 
+            {% if forloop.first %} 
+              {% for hidden in form.hidden_fields %}
+                {{ hidden }} 
+              {% endfor %} 
+            {% endif %} 
+            {{ field.errors.as_ul }} 
+            {{ field|as_crispy_field }}
           </td>
           {% endfor %}
         </tr>
@@ -39,8 +46,8 @@
       </script>
       <script type="text/javascript">
         $('.formset_row-{{ ingredients.prefix }}').formset({
-          addText: 'add Ingredient',
-          deleteText: 'delete',
+          addText: 'Zutat hinzufügen',
+          deleteText: 'löschen',
           prefix: '{{ ingredients.prefix }}',
         });
       </script>
@@ -54,7 +61,7 @@
         {{ image|crispy }} {{ image.media }}
       </div>
       <div class="form-group">
-        <button class="btn btn-outline-info" type="submit">Save</button>
+        <button class="btn btn-outline-info" type="submit">Speichern</button>
       </div>
     </fieldset>
   </form>

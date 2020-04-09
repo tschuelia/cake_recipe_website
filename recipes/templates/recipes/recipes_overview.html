@@ -4,12 +4,14 @@
   <div class="col-10">
     {% if cat_title %}
     <h3>Rezepte der Kategorie {{ cat_title }}</h3>
+    {% elif username %}
+    <h3>Rezepte von {{ username }}</h3>
     {% else %}
     <h3>Alle Rezepte</h3>
     {% endif %}
   </div>
   <div class="col-2">
-    <a class="btn btn-secondary" href="{% url 'recipe-create' %}"> Neues Rezept<i class="col-2 fas fa-plus"></i></a>
+    <a class="btn btn-secondary" href="{% url 'recipe-create' %}">Rezept<i class="col-2 fas fa-plus"></i></a>
   </div>
 </div>
 <div class="card-columns">
@@ -22,14 +24,14 @@
           {{ recipe.prep_time }}
         </div>
         <div class="col-4">
-          <a class="recipe-card-author" href="{% url 'user-recipes' recipe.author.username%}"><i
+          <a class="recipe-card-link" href="{% url 'user-recipes' recipe.author.username%}"><i
               class="fas fa-user"></i> {{ recipe.author }}</a>
         </div>
       </div>
     </div>
     <img class="card-img-top" src="{{ recipe.get_first_image.get_url }}" alt="Card image cap">
     <div class="card-body">
-      <h5 class="card-title text-center"><a class="recipe-card-title"
+      <h5 class="card-title text-center"><a class="recipe-card-link"
           href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a></h5>
       <hr>
       <p class="card-text text-center">{{ recipe.introduction }}</p>

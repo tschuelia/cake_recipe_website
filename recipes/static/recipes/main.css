@@ -1,17 +1,8 @@
-.recipe-card-title {
+.recipe-card-link {
     color: purple;
 }
 
-.recipe-card-title:hover {
-    color: plum;
-    text-decoration: none;
-}
-
-.recipe-card-author {
-    color: purple
-}
-
-.recipe-card-author:hover {
+.recipe-card-link:hover {
     color: plum;
     text-decoration: none;
 }
@@ -26,4 +17,13 @@
 
 .recipe-detail-instructions {
     color: purple;
+}
+
+.recipe-detail-link {
+    color: purple;
+}
+
+.recipe-detail-link:hover {
+    color: plum;
+    text-decoration: none;
 }

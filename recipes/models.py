@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from random import randint
 
-from PIL import Image
 from fractions import Fraction
 
 
@@ -14,7 +13,7 @@ from fractions import Fraction
 
 
 class Category(models.Model):
-    title = models.CharField(max_length=200, unique=True, verbose_name="Kategorie")
+    title = models.CharField(max_length=200, unique=True, verbose_name="Name")
 
     def __str__(self):
         return self.title
@@ -56,27 +55,17 @@ class Recipe(models.Model):
     directions = models.TextField(verbose_name="Zubereitung")
     prep_time = models.CharField(max_length=100, verbose_name="Zubereitungszeit")
     categories = models.ManyToManyField(Category, blank=True, verbose_name="Kategorien")
-    # image = models.ImageField(default='default.jpg', upload_to='recipe_pics', verbose_name="Image")
     author = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True)
+    notes = models.TextField(verbose_name="Notizen", blank=True)
 
     def __str__(self):
         return self.title
-
-    """# resize big images when uploading
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        img = Image.open(self.image.path)
-        if img.height > 1000 or img.width > 1000:
-            output_size = (1000, 1000)
-            img.thumbnail(output_size)
-            img.save(self.image.path)"""
 
     def get_categories(self):
         return self.categories.all().order_by("title")
 
     def get_ingredients(self):
-        rec = get_object_or_404(Recipe, pk=self.pk)
-        return Ingredient.objects.filter(recipe__pk__contains=rec.pk)
+        return Ingredient.objects.filter(recipe__pk__contains=self.pk)
 
     def get_absolute_url(self):
         return reverse("recipe-detail", kwargs={"pk": self.pk})
@@ -90,12 +79,10 @@ class Recipe(models.Model):
         return str(serv)
 
     def get_images(self):
-        rec = get_object_or_404(Recipe, pk=self.pk)
-        return Image.objects.filter(recipe__pk__contains=rec.pk)
+        return Image.objects.filter(recipe__pk__contains=self.pk)
 
     def get_first_image(self):
-        rec = get_object_or_404(Recipe, pk=self.pk)
-        return Image.objects.filter(recipe__pk__contains=rec.pk).first()
+        return Image.objects.filter(recipe__pk__contains=self.pk).first()
 
 
 ##################################
