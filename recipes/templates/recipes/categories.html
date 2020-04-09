@@ -1,16 +1,52 @@
-{% extends "recipes/base.html" %} {% block content %} {% for cat in categories %}
-<h2><a class="recipe-title" href="{% url 'category-recipes' cat.pk %}">{{ cat.title }}</a></h2>
-<recipe class="media content-section">
-  <div class="media-body">
+{% extends "recipes/base.html" %}
+{% block content %}
+<h3>Kategorien</h3>
+<div class="card-columns">
+  {% for cat, recipe in categories %}
+  <div class="card">
     {% if cat.random_recipe %}
-    <h4><a class="recipe-title-small" href="{% url 'recipe-detail' cat.random_recipe.id %}">{{ cat.random_recipe.title }}</a></h4>
-    <img class="recipe-img-small" src="{{ cat.random_recipe.image.url }}"> {% else %}
-    <p>No Recipes for this category yet.</p>
+    <img class="card-img-top" src="{{ recipe.get_first_image.get_url }}" alt="Card image cap">
     {% endif %}
+    <div class="card-header">
+      <h5 class="card-title text-center"><a href="{% url 'category-recipes' cat.pk %}">{{ cat.title }}</a></h5>
+    </div>
+    <div class="card-body">
+      {% if cat.get_recipes|length < 1 %}
+      <p class="card-text text-center">Bisher keine Rezepte in dieser Kategorie.</p>
+      {% else %}
+      <ul class="list-group list-group-flush">
+        {% if cat.get_recipes|length > 2 %}
+        <li class="list-group-item"><a href="{% url 'recipe-detail' recipe.pk %}">{{ recipe.title }}</a></li>
+        <li class="list-group-item"><a href="{% url 'category-recipes' cat.pk %}">...</a></li>
+        {% else %}
+        <li class="list-group-item"><a href="{% url 'recipe-detail' recipe.pk %}">{{ recipe.title }}</a></li>
+        {% endif %}
+      </ul>
+      {% endif %}
+    </div>
   </div>
-</recipe>
-{% endfor %}
+  {% endfor %}
+</div>
+
 {% if is_paginated %}
-    {% include "recipes/pagination.html" %}
+{% include "recipes/pagination.html" %}
 {% endif %}
 {% endblock content %}
+
+
+<!-- <div class="card-columns">
+  {% for cat in categories %}
+  <div class="card">
+    {% if cat.random_recipe %}
+    <img class="card-img-top" src="{{ cat.random_recipe.image.url }}" alt="Card image cap">
+    <div class="card-body">
+      <p class="card-text"><a class="recipe-title-small"
+          href="{% url 'recipe-detail' cat.random_recipe.id %}">{{ cat.random_recipe.title }}</a></p>
+    </div>
+    {% else %}
+    <h5 class="card-title"><a href="{% url 'category-recipes' cat.pk %}">{{ cat.title }}</a></h5>
+    <p class="card-text">No Recipes for this category yet.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div> -->

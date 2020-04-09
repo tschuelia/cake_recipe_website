@@ -1,50 +1,48 @@
-{% extends "recipes/base.html" %} 
-{% block content %} 
-<div class="row">
+{% extends "recipes/base.html" %}
+{% block content %}
+<div class="row my-4">
+  <div class="col-10">
+    {% if cat_title %}
+    <h3>Rezepte der Kategorie {{ cat_title }}</h3>
+    {% else %}
+    <h3>Alle Rezepte</h3>
+    {% endif %}
+  </div>
+  <div class="col-2">
+    <a class="btn btn-secondary" href="{% url 'recipe-create' %}"> Neues Rezept<i class="col-2 fas fa-plus"></i></a>
+  </div>
+</div>
+<div class="card-columns">
   {% for recipe in recipes %}
-  <div class="col-md-4 mb-4">
-    <div class="recipe-overview">
-      <img src="{{ recipe.get_first_image.get_url }}" class="recipe-img">
-      <div>
-        <a class="h5 recipe-title" href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a>
-        <hr class="separator">
-        <p class="recipe-description">Text</p>
-        <hr class="separator">
-        <div class="row">
-          <div class="col-md-6">
-              <span class="recipe-preptime">{{ recipe.prep_time }}</span>
-          </div>
-          <div class="col-md-6">
-              <a class="recipe-author" href="{% url 'user-recipes' recipe.author.username%}">{{ recipe.author }}</a>
-          </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-8">
+          <i class="far fa-clock"></i>
+          {{ recipe.prep_time }}
+        </div>
+        <div class="col-4">
+          <a class="recipe-card-author" href="{% url 'user-recipes' recipe.author.username%}"><i
+              class="fas fa-user"></i> {{ recipe.author }}</a>
         </div>
       </div>
-      <hr class="separator-categories">
-      <div class="recipe-categories">
-        {% for cat in recipe.get_categories %}
-          <a href="{% url 'category-recipes' cat.pk %}" class="badge category-tag">{{ cat.title }}</a> 
-        {% endfor %}
-      </div>
     </div>
-  </div>
-<!-- <recipe class="media content-section card-deck">
-  <div class="media-body">
-    <div class="recipe-metadata">
+    <img class="card-img-top" src="{{ recipe.get_first_image.get_url }}" alt="Card image cap">
+    <div class="card-body">
+      <h5 class="card-title text-center"><a class="recipe-card-title"
+          href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a></h5>
+      <hr>
+      <p class="card-text text-center">{{ recipe.introduction }}</p>
+    </div>
+    <div class="card-footer text-center">
       {% for cat in recipe.get_categories %}
-      <a href="{% url 'category-recipes' cat.pk %}" class="badge badge-primary">{{ cat.title }}</a> {% endfor %}
-      <small class="text-muted">{{ recipe.prep_time }}</small>
-      <span style="float:right;">
-                <a class="mr-2 author" href="{% url 'user-recipes' recipe.author.username%}">{{ recipe.author }}</a>
-            </span>
+      <a href="{% url 'category-recipes' cat.pk %}" class="badge badge-light">{{ cat.title }}</a>
+      {% endfor %}
     </div>
-    <h2><a class="recipe-title" href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a></h2>
-    <img class="recipe-img" src="{{ recipe.get_first_image.get_url }}">
   </div>
-</recipe> -->
-{% endfor %}
+  {% endfor %}
 </div>
-
 {% if is_paginated %}
-    {% include "recipes/pagination.html" %}
+{% include "recipes/pagination.html" %}
 {% endif %}
 {% endblock content %}
