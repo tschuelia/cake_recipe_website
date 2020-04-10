@@ -1,14 +1,14 @@
 {% extends "recipes/base.html" %} {% block content %}
-<div class="content-section">
+<div>
   <form method="POST">
     {% csrf_token %}
     <fieldset class="form-group">
-      <legend class="border-bottom mb-4">Delete Recipe</legend>
-      <h2>Are you sure you want to delete recipe {{ object.title }}?</h2>
+      <legend class="border-bottom mb-4">Rezept löschen</legend>
+      <h4>Bist du sicher das du das Rezept <i>{{ object.title }}</i> löschen möchtest?</h4>
     </fieldset>
     <div class="form-group">
-      <button class="btn btn-outline-danger" type="submit">Yes, delete</button>
-      <a class="btn btn-outline-secondary" href="{% url 'recipe-detail' object.id %}">Cancel</a>
+      <button class="btn btn-outline-danger" type="submit">Ja, löschen</button>
+      <a class="btn btn-outline-secondary" href="{% url 'recipe-detail' object.id %}">Abbrechen</a>
     </div>
   </form>
 </div>

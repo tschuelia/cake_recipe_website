@@ -14,8 +14,8 @@ from random import randint
 
 from django.views.generic import ListView, CreateView, DeleteView
 
-from .models import Recipe, Category, Ingredient, Food
-from .forms import RecipeForm, IngredientFormSet, ImageForm
+from .models import Recipe, Category, Ingredient, Image, Food
+from .forms import RecipeForm, IngredientFormSet, ImageFormSet
 
 ################################
 # Category views
@@ -75,7 +75,7 @@ def recipe_detail(request, pk):
         request,
         "recipes/recipe_detail.html",
         {
-            "object": recipe,
+            "recipe": recipe,
             "images": images,
             "ingredients": ingredients,
             "servings": servings,
@@ -115,72 +115,67 @@ def recipe_convert_servings(request, pk):
 
 
 @login_required
+def create_recipe(request):
+    if request.method == "GET":
+        return display_recipe_form(request)
+    else:  # method == 'POST'
+        return process_recipe_form(request)
+
+
+@login_required
 def update_recipe(request, pk):
     recipe = Recipe.objects.get(pk=pk)
-    images = recipe.get_images().first()
     if not request.user == recipe.author:
         raise PermissionDenied
     if request.method == "GET":
-        # Anzeigen
-        recipe_form = RecipeForm(instance=recipe)
-        image_form = ImageForm(instance=images)
-        ingredients_formset = IngredientFormSet(instance=recipe)
+        return display_recipe_form(request, recipe)
+    else:  # method == 'POST'
+        return process_recipe_form(request, recipe)
+
+
+def display_recipe_form(request, recipe=None):
+    recipe_form = RecipeForm(instance=recipe)
+    image_form = ImageFormSet(instance=recipe)
+    ingredients_formset = IngredientFormSet(instance=recipe)
+    return render(
+        request,
+        "recipes/recipe_form.html",
+        {
+            "form": recipe_form,
+            "images": image_form,
+            "ingredients": ingredients_formset,
+        },
+    )
+
+
+def process_recipe_form(request, recipe=None):
+    recipe_form = RecipeForm(request.POST, instance=recipe)
+    image_formset = ImageFormSet(request.POST, request.FILES, instance=recipe)
+    ingredients_formset = IngredientFormSet(request.POST, instance=recipe)
+    if (
+        (not recipe_form.is_valid())
+        or (not image_formset.is_valid())
+        or (not ingredients_formset.is_valid())
+    ):
         return render(
             request,
             "recipes/recipe_form.html",
             {
                 "form": recipe_form,
-                "image": image_form,
+                "images": image_formset,
                 "ingredients": ingredients_formset,
             },
         )
-    else:  # method == 'POST'
-        # Abgeschicktes Formular verarbeiten
-        recipe_form = RecipeForm(request.POST, instance=recipe)
-        image_form = ImageForm(request.POST, instance=images)
-        ingredients_formset = IngredientFormSet(request.POST, instance=recipe)
-        if not recipe_form.is_valid():
-            return render(
-                request,
-                "recipes/recipe_form.html",
-                {
-                    "form": recipe_form,
-                    "image": image_form,
-                    "ingredients": ingredients_formset,
-                },
-            )
+    recipe_form.instance.author = request.user
+    recipe_obj = recipe_form.save()
 
-        if not image_form.is_valid():
-            return render(
-                request,
-                "recipes/recipe_form.html",
-                {
-                    "form": recipe_form,
-                    "image": image_form,
-                    "ingredients": ingredients_formset,
-                },
-            )
+    image_formset.instance = recipe_obj
+    image_formset.save()
 
-        if not ingredients_formset.is_valid():
-            return render(
-                request,
-                "recipes/recipe_form.html",
-                {
-                    "form": recipe_form,
-                    "image": image_form,
-                    "ingredients": ingredients_formset,
-                },
-            )
-        recipe_form.instance.author = request.user
-        recipe_obj = recipe_form.save()
+    ingredients_formset.instance = recipe_obj
+    ingredients_formset.save()
 
-        image_form.instance.recipe = recipe_obj
-        image_form.save()
-
-        ingredients_formset.instance = recipe_obj
-        ingredients_formset.save()
-
-        return redirect(recipe_obj)
+    return redirect(recipe_obj)
 
 
 class RecipeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -194,59 +189,6 @@ class RecipeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return False
 
 
-@login_required
-def create_recipe(request):
-    if request.method == "GET":
-        # Anzeigen
-        recipe_form = RecipeForm()
-        image_form = ImageForm()
-        ingredients_formset = IngredientFormSet()
-        return render(
-            request,
-            "recipes/recipe_form.html",
-            {
-                "form": recipe_form,
-                "image": image_form,
-                "ingredients": ingredients_formset,
-            },
-        )
-    else:  # method == 'POST'
-        # Abgeschicktes Formular verarbeiten
-        recipe_form = RecipeForm(request.POST)
-        ingredients_formset = IngredientFormSet(request.POST)
-        image_form = ImageForm(request.POST)
-        if not recipe_form.is_valid():
-            return render(
-                request,
-                "recipes/recipe_form.html",
-                {
-                    "form": recipe_form,
-                    "image": image_form,
-                    "ingredients": ingredients_formset,
-                },
-            )
-        if not ingredients_formset.is_valid():
-            return render(
-                request,
-                "recipes/recipe_form.html",
-                {
-                    "form": recipe_form,
-                    "image": image_form,
-                    "ingredients": ingredients_formset,
-                },
-            )
-        recipe_form.instance.author = request.user
-        recipe_obj = recipe_form.save()
-
-        image_form.instance.recipe = recipe_obj
-        image_form.save()
-
-        ingredients_formset.instance = recipe_obj
-        ingredients_formset.save()
-
-        return redirect(recipe_obj)
-
-
 ################################
 # User views
 ################################
@@ -257,6 +199,7 @@ def recipes_for_user(request, username):
         "recipes/recipes_overview.html",
         {"recipes": recipes, "username": username},
     )
+
 
 ####################
 class RecipeSearchListView(RecipeListView):

@@ -2,32 +2,31 @@
 {% block content %}
 <div class="row">
   <div class="col-10">
-    <h2 class="recipe-detail-title">{{ object.title }}</h2>
+    <h2 class="recipe-detail-title">{{ recipe.title }}</h2>
   </div>
-  {% if object.author == user%}
+  {% if recipe.author == user%}
   <div class="col-2">
-    <a href="{% url 'recipe-update' object.id %}" class="btn text-dark"><i class="fas fa-edit"></i></a>
-    <a href="{% url 'recipe-delete' object.id %}" class="btn text-danger"><i class="fas fa-trash"></i></a>
+    <a href="{% url 'recipe-update' recipe.id %}" class="btn text-dark"><i class="fas fa-edit"></i></a>
+    <a href="{% url 'recipe-delete' recipe.id %}" class="btn text-danger"><i class="fas fa-trash"></i></a>
   </div>
   {% endif %}
 </div>
+<hr>
 
 <div class="row">
   <div class="col-md-6">
-    {% for img in images %}
-    <img class="rounded mx-auto d-block w-75" src="{{ img.get_url }}">
-    {% endfor %}
+    {% include "recipes/image_slideshow.html" with images=images %}
   </div>
   <div class="col-md-6">
     <div>
-      {{ object.introduction }}
+      {{ recipe.introduction }}
     </div>
     <hr>
     <div class="row mb-2">
       <div class="col-sm-2 col-md-1">
         <i class="far fa-clock clock-icon fa-lg"></i>
       </div>
-      <div>{{ object.prep_time }}</div>
+      <div>{{ recipe.prep_time }}</div>
     </div>
     <div class="row mb-2">
       <div class="col-sm-2 col-md-1">
@@ -44,13 +43,13 @@
       </form>
     </div>
     <div class="row mb-">
-      <a class="col-sm-6 col-md-3 recipe-detail-link" href="{% url 'user-recipes' object.author.username %}">
-        <i class="fas fa-user fa-lg mr-2"></i>{{ object.author.username }}
+      <a class="col-sm-6 col-md-3 recipe-detail-link" href="{% url 'user-recipes' recipe.author.username %}">
+        <i class="fas fa-user fa-lg mr-2"></i>{{ recipe.author.username }}
       </a>
     </div>
 
     <hr>
-    {% for cat in object.get_categories %}
+    {% for cat in recipe.get_categories %}
     <div class="row mb-2">
       <a href="{% url 'category-recipes' cat.pk %}" class="badge badge-light">{{ cat.title }}</a>
     </div>
@@ -68,6 +67,10 @@
 <hr>
 
 <h5 class="recipe-detail-instructions">Zubereitung</h5>
-<p>{{ object.directions|linebreaks }}</p>
+<p>{{ recipe.directions|linebreaks }}</p>
+<hr>
+
+<h7 class="recipe-detail-instructions">Anmerkungen</h7>
+<p>{{ recipe.notes|linebreaks }}</p>
 
 {% endblock content %}

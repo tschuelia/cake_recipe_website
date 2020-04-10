@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django_addanother.widgets import AddAnotherWidgetWrapper
 from .models import Recipe, Ingredient, Food, Image
 
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, modelformset_factory
 
 
 class RecipeForm(forms.ModelForm):
@@ -17,14 +17,8 @@ class RecipeForm(forms.ModelForm):
         }
 
 
-class ImageForm(forms.ModelForm):
-    class Meta:
-        model = Image
-        fields = ["image"]
-
-
 class IngredientForm(forms.ModelForm):
-    food_name = forms.CharField(label="Food", required=True)
+    food_name = forms.CharField(label="Lebensmittel", required=True)
 
     class Meta:
         model = Ingredient
@@ -56,4 +50,28 @@ IngredientFormSet = inlineformset_factory(
         "amount": forms.NumberInput(attrs={"style": "width:80px"}),
         "unit": forms.TextInput(attrs={"style": "width:80px"}),
     },
+)
+
+
+class ImageForm(forms.ModelForm):
+    image = forms.ImageField(label="")
+
+    class Meta:
+        model = Image
+        fields = [
+            "image",
+        ]
+
+    def save(self, commit):
+        image = super().save(commit=False)
+        img_obj, created = Image.objects.get_or_create(
+            image=image.image, recipe=image.recipe
+        )
+        if commit:
+            img_obj.save()
+        return img_obj
+
+
+ImageFormSet = inlineformset_factory(
+    Recipe, Image, form=ImageForm, fields=("image",), extra=1
 )
