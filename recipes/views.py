@@ -68,9 +68,15 @@ class RecipeListView(ListView):
 
 def recipe_detail(request, pk):
     recipe = Recipe.objects.get(pk=pk)
-    ingredients = recipe.get_ingredients
     images = recipe.get_images
-    servings = recipe.get_servings
+
+    if request.GET.get("number_servings"):
+        servings = Decimal(request.GET.get("number_servings"))
+        ingredients = get_converted_ingredients(recipe, servings)
+
+    else:
+        ingredients = recipe.get_ingredients
+        servings = recipe.get_servings
     return render(
         request,
         "recipes/recipe_detail.html",
@@ -83,16 +89,13 @@ def recipe_detail(request, pk):
     )
 
 
-def recipe_convert_servings(request, pk):
-    recipe = Recipe.objects.get(pk=pk)
+def get_converted_ingredients(recipe, new_servings):
     ingredients = recipe.get_ingredients()
-    images = recipe.get_images
     servings_original = recipe.servings
-    servings_desired = Decimal(request.GET.get("number_servings"))
     new_ingredients = []
     for ing in ingredients:
         amount_original = ing.amount
-        amount_new = (amount_original / servings_original) * servings_desired
+        amount_new = (ing.amount / recipe.servings) * new_servings
         new_ingredients.append(
             Ingredient(
                 amount=amount_new,
@@ -102,16 +105,7 @@ def recipe_convert_servings(request, pk):
                 recipe=None,
             )
         )
-    return render(
-        request,
-        "recipes/recipe_detail.html",
-        {
-            "object": recipe,
-            "images": images,
-            "ingredients": new_ingredients,
-            "servings": servings_desired,
-        },
-    )
+    return new_ingredients
 
 
 @login_required
