@@ -81,9 +81,6 @@ class Recipe(models.Model):
     def get_images(self):
         return Image.objects.filter(recipe__pk__contains=self.pk)
 
-    def get_first_image(self):
-        return Image.objects.filter(recipe__pk__contains=self.pk).first()
-
 
 ##################################
 # Ingredient

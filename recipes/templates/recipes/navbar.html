@@ -13,9 +13,9 @@
                 <a class="nav-link" href="{% url 'recipes-categories' %}">Kategorien</a>
             </li>
         </ul>
-        <form class="form-inline my-2 my-lg-0" id="searchform" action="{% url 'search-results-recipe' %}" method="get" accept-charset="utf-8">
-            <input class="form-control mr-sm-2" id="searchbox" name="q" type="text" placeholder="Suche" aria-label="Suche">
-            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Suche</i></button>
+        <form class="form-inline my-2 my-lg-0" id="searchform" accept-charset="utf-8">
+            <input class="form-control mr-sm-2" id="searchbox" name="q" type="text" value="{{request.GET.q}}" placeholder="Suche" aria-label="Suche">
+            <button class="btn btn-outline-light my-2 my-sm-0" type="submit"><i class="fas fa-search"></i></button>
         </form>
         <ul class="navbar-nav">
             <li class="nav-item active">

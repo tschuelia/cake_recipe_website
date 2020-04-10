@@ -6,6 +6,8 @@
     <h3>Rezepte der Kategorie {{ cat_title }}</h3>
     {% elif username %}
     <h3>Rezepte von {{ username }}</h3>
+    {% elif search_term%}
+    <h3>Rezepte für den Suchbegriff <i>{{ search_term }}</i></h3>
     {% else %}
     <h3>Alle Rezepte</h3>
     {% endif %}

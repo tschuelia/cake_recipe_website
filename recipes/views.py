@@ -11,6 +11,7 @@ from django.core.paginator import Paginator
 
 from decimal import Decimal
 from random import randint
+from watson import search as watson
 
 from django.views.generic import ListView, CreateView, DeleteView
 
@@ -58,16 +59,23 @@ def category_recipe_view(request, pk):
 ################################
 # Recipe views
 ################################
-class RecipeListView(ListView):
-    model = Recipe
-    template_name = "recipes/recipes_overview.html"
-    context_object_name = "recipes"
-    paginate_by = 12
-    ordering = ["title"]
+def recipe_overview(request):
+    search_term = request.GET.get("q")
+    if search_term:
+        results = watson.search(search_term)
+        pks = [r.object_id_int for r in results]
+        recipes = Recipe.objects.filter(pk__in=pks).order_by("title")
+    else:
+        recipes = Recipe.objects.all().order_by("title")
+    return render(
+        request,
+        "recipes/recipes_overview.html",
+        {"recipes": recipes, "search_term": search_term},
+    )
 
 
 def recipe_detail(request, pk):
-    recipe = Recipe.objects.get(pk=pk)
+    recipe = get_object_or_404(Recipe, pk=pk)
     images = recipe.get_images
 
     if request.GET.get("number_servings"):
@@ -193,23 +201,3 @@ def recipes_for_user(request, username):
         "recipes/recipes_overview.html",
         {"recipes": recipes, "username": username},
     )
-
-
-####################
-class RecipeSearchListView(RecipeListView):
-    """
-    Display a Recipe List page filtered by the search query.
-    """
-
-    model = Recipe
-    template_name = "recipes/recipes_overview.html"
-    context_object_name = "recipes"
-    paginate_by = 12
-
-    def get_queryset(self):
-        result = super(RecipeSearchListView, self).get_queryset()
-
-        query = self.request.GET.get("q")
-        if query:
-            result = result.filter(title__icontains=query)
-        return result
