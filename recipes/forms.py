@@ -1,9 +1,9 @@
 from django import forms
+from django.forms import BaseInlineFormSet, inlineformset_factory, modelformset_factory
 from django.urls import reverse_lazy
 from django_addanother.widgets import AddAnotherWidgetWrapper
-from .models import Recipe, Ingredient, Food, Image
 
-from django.forms import inlineformset_factory, modelformset_factory
+from .models import Food, Image, Ingredient, Recipe
 
 
 class RecipeForm(forms.ModelForm):
@@ -58,20 +58,44 @@ class ImageForm(forms.ModelForm):
 
     class Meta:
         model = Image
-        fields = [
-            "image",
-        ]
+        fields = ["image", "is_primary"]
 
     def save(self, commit):
         image = super().save(commit=False)
         img_obj, created = Image.objects.get_or_create(
             image=image.image, recipe=image.recipe
         )
+        img_obj.is_primary = image.is_primary
         if commit:
             img_obj.save()
         return img_obj
 
 
+class BaseImageFormset(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        if any(self.errors):
+            return
+
+        selected = 0
+        for form in self.forms:
+            if self.can_delete and self._should_delete_form(form):
+                continue
+            if selected and form.cleaned_data.get("is_primary"):
+                raise forms.ValidationError(
+                    message="Es kann nur ein Bild als Titelbild gewählt werden.",
+                    code="invalid",
+                )
+
+            elif form.cleaned_data.get("is_primary"):
+                selected += 1
+
+
 ImageFormSet = inlineformset_factory(
-    Recipe, Image, form=ImageForm, fields=("image",), extra=1
+    Recipe,
+    Image,
+    form=ImageForm,
+    formset=BaseImageFormset,
+    fields=("image", "is_primary",),
+    extra=1,
 )

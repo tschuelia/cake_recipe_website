@@ -1,22 +1,21 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
-from django_addanother.views import CreatePopupMixin
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.urls import reverse_lazy
-from django.db import transaction
-from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator
-
 from decimal import Decimal
 from random import randint
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
+from django.db import transaction
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DeleteView, ListView
+from django_addanother.views import CreatePopupMixin
 from watson import search as watson
 
-from django.views.generic import ListView, CreateView, DeleteView
-
-from .models import Recipe, Category, Ingredient, Image, Food
-from .forms import RecipeForm, IngredientFormSet, ImageFormSet
+from .forms import ImageFormSet, IngredientFormSet, RecipeForm
+from .models import Category, Food, Image, Ingredient, Recipe
 
 ################################
 # Category views
@@ -27,7 +26,6 @@ def categories_overview(request):
     cats = Category.objects.all().order_by("title").all()
     categories = []
     for cat in cats:
-        print(cat)
         categories.append((cat, cat.random_recipe()))
     return render(request, "recipes/categories.html", {"categories": categories})
 
@@ -43,7 +41,6 @@ class CategoryCreateView(CreatePopupMixin, LoginRequiredMixin, CreateView):
 
 def category_recipe_view(request, pk):
     cat = get_object_or_404(Category, pk=pk)
-    cat_title = cat.title
     recipe_list = cat.get_recipes()
 
     paginator = Paginator(recipe_list, 5)
@@ -52,7 +49,7 @@ def category_recipe_view(request, pk):
     return render(
         request,
         "recipes/recipes_overview.html",
-        {"recipes": recipes, "cat_title": cat_title},
+        {"recipes": recipes, "cat_title": cat.title},
     )
 
 

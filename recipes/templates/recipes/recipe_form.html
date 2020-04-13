@@ -6,6 +6,12 @@
 <div class="content-section">
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
+    {% if ingredients.non_form_errors or images.non_form_errors %}
+      <div class="alert alert-danger" role="alert">
+        {{ ingredients.non_form_errors }}
+        {{ images.non_form_errors }}
+      </div>
+    {% endif %}
     <fieldset class="form-group">
       {% if form.instance.pk %}
       <legend class="border-bottom mb-4">Rezept ändern</legend>

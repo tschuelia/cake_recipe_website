@@ -1,11 +1,10 @@
-from django.db import models
-from django.urls import reverse
-from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
+from fractions import Fraction
 from random import randint
 
-from fractions import Fraction
-
+from django.contrib.auth.models import User
+from django.db import models
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 
 ##################################
 # Category
@@ -79,7 +78,14 @@ class Recipe(models.Model):
         return str(serv)
 
     def get_images(self):
-        return Image.objects.filter(recipe__pk__contains=self.pk)
+        return Image.objects.filter(recipe__pk__contains=self.pk).order_by(
+            "-is_primary"
+        )
+
+    def get_primary_image(self):
+        return Image.objects.filter(
+            recipe__pk__contains=self.pk, is_primary=True
+        ).first()
 
 
 ##################################
@@ -109,6 +115,10 @@ class Image(models.Model):
     recipe = models.ForeignKey(
         Recipe, related_name="image_of", on_delete=models.CASCADE, null=True
     )
+    is_primary = models.BooleanField(default=False, verbose_name="Titelbild")
+
+    def __str__(self):
+        return self.image.name
 
     def get_url(self):
         return self.image.url

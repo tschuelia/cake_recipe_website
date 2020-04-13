@@ -1,10 +1,7 @@
 from django.urls import path
-from .views import (
-    CategoryCreateView,
-    RecipeDeleteView,
-)
-from . import views
 
+from . import views
+from .views import CategoryCreateView, RecipeDeleteView
 
 urlpatterns = [
     path("", views.recipe_overview, name="recipes-home"),
