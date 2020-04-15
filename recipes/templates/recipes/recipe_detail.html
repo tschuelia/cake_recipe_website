@@ -2,7 +2,7 @@
 {% block content %}
 <div class="row">
   <div class="col-10">
-    <h2 class="recipe-detail-title">{{ recipe.title }}</h2>
+    <h2 class="recipe-detail-title text-truncate">{{ recipe.title }}</h2>
   </div>
   {% if recipe.author == user%}
   <div class="col-2">
@@ -15,7 +15,7 @@
 
 <div class="row">
   <div class="col-md-6">
-    {% include "recipes/image_slideshow.html" with images=images %}
+    {% include "recipes/image_slideshow.html" with images=recipe.get_images %}
   </div>
   <div class="col-md-6">
     <div>
@@ -51,7 +51,7 @@
     <hr>
     {% for cat in recipe.get_categories %}
     <div class="row mb-2">
-      <a href="{% url 'category-recipes' cat.pk %}" class="badge badge-light">{{ cat.title }}</a>
+      <a href="{% url 'category-recipes' cat.title %}" class="badge badge-light">{{ cat.title }}</a>
     </div>
     {% endfor %}
   </div>

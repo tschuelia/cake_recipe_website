@@ -13,7 +13,7 @@
   <div class="card">
     <div class="card-header">
       <h5 class="card-title text-center"><a class="recipe-card-link"
-          href="{% url 'category-recipes' cat.pk %}">{{ cat.title }}</a></h5>
+          href="{% url 'category-recipes' cat.title %}">{{ cat.title }}</a></h5>
     </div>
     <div class="card-body">
       {% if cat.get_recipes|length < 1 %}
@@ -27,7 +27,7 @@
         <li class="list-group-item"><a class="recipe-card-link"
             href="{% url 'recipe-detail' cat.get_recipes.1.pk %}">{{ cat.get_recipes.1.title }}</a></li>
         <li class="list-group-item"><a class="recipe-card-link"
-            href="{% url 'category-recipes' cat.pk %}">...mehr...</a></li>
+            href="{% url 'category-recipes' cat.title %}">...mehr...</a></li>
         {% else %}
         {% for rec in cat.get_recipes %}
         <li class="list-group-item"><a class="recipe-card-link"
@@ -45,21 +45,3 @@
 {% include "recipes/pagination.html" %}
 {% endif %}
 {% endblock content %}
-
-
-<!-- <div class="card-columns">
-  {% for cat in categories %}
-  <div class="card">
-    {% if cat.random_recipe %}
-    <img class="card-img-top" src="{{ cat.random_recipe.image.url }}" alt="Card image cap">
-    <div class="card-body">
-      <p class="card-text"><a class="recipe-title-small"
-          href="{% url 'recipe-detail' cat.random_recipe.id %}">{{ cat.random_recipe.title }}</a></p>
-    </div>
-    {% else %}
-    <h5 class="card-title"><a href="{% url 'category-recipes' cat.pk %}">{{ cat.title }}</a></h5>
-    <p class="card-text">No Recipes for this category yet.</p>
-    {% endif %}
-  </div>
-  {% endfor %}
-</div> -->

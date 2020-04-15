@@ -1,7 +1,6 @@
 from decimal import Decimal
-from random import randint
 
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -12,10 +11,23 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView
 from django_addanother.views import CreatePopupMixin
-from watson import search as watson
 
-from .forms import ImageFormSet, IngredientFormSet, RecipeForm
-from .models import Category, Food, Image, Ingredient, Recipe
+from .forms import (
+    CategoryFilterForm,
+    FoodFilterForm,
+    ImageFormSet,
+    IngredientFormSet,
+    RecipeForm,
+)
+from .models import (
+    Category,
+    Food,
+    Image,
+    Ingredient,
+    Recipe,
+    get_converted_ingredients,
+    get_search_results,
+)
 
 ################################
 # Category views
@@ -39,11 +51,11 @@ class CategoryCreateView(CreatePopupMixin, LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-def category_recipe_view(request, pk):
-    cat = get_object_or_404(Category, pk=pk)
+def category_recipe_view(request, title):
+    cat = get_object_or_404(Category, title=title)
     recipe_list = cat.get_recipes()
 
-    paginator = Paginator(recipe_list, 5)
+    paginator = Paginator(recipe_list, 15)
     page = request.GET.get("page")
     recipes = paginator.get_page(page)
     return render(
@@ -57,23 +69,15 @@ def category_recipe_view(request, pk):
 # Recipe views
 ################################
 def recipe_overview(request):
-    search_term = request.GET.get("q")
-    if search_term:
-        results = watson.search(search_term)
-        pks = [r.object_id_int for r in results]
-        recipes = Recipe.objects.filter(pk__in=pks).order_by("title")
-    else:
-        recipes = Recipe.objects.all().order_by("title")
-    return render(
-        request,
-        "recipes/recipes_overview.html",
-        {"recipes": recipes, "search_term": search_term},
-    )
+    recipe_list = Recipe.objects.all().order_by("title")
+    paginator = Paginator(recipe_list, 15)
+    page = request.GET.get("page")
+    recipes = paginator.get_page(page)
+    return render(request, "recipes/recipes_overview.html", {"recipes": recipes},)
 
 
 def recipe_detail(request, pk):
     recipe = get_object_or_404(Recipe, pk=pk)
-    images = recipe.get_images
 
     if request.GET.get("number_servings"):
         servings = Decimal(request.GET.get("number_servings"))
@@ -85,39 +89,15 @@ def recipe_detail(request, pk):
     return render(
         request,
         "recipes/recipe_detail.html",
-        {
-            "recipe": recipe,
-            "images": images,
-            "ingredients": ingredients,
-            "servings": servings,
-        },
+        {"recipe": recipe, "ingredients": ingredients, "servings": servings},
     )
-
-
-def get_converted_ingredients(recipe, new_servings):
-    ingredients = recipe.get_ingredients()
-    servings_original = recipe.servings
-    new_ingredients = []
-    for ing in ingredients:
-        amount_original = ing.amount
-        amount_new = (ing.amount / recipe.servings) * new_servings
-        new_ingredients.append(
-            Ingredient(
-                amount=amount_new,
-                unit=ing.unit,
-                food=ing.food,
-                notes=ing.notes,
-                recipe=None,
-            )
-        )
-    return new_ingredients
 
 
 @login_required
 def create_recipe(request):
     if request.method == "GET":
         return display_recipe_form(request)
-    else:  # method == 'POST'
+    else:
         return process_recipe_form(request)
 
 
@@ -128,7 +108,7 @@ def update_recipe(request, pk):
         raise PermissionDenied
     if request.method == "GET":
         return display_recipe_form(request, recipe)
-    else:  # method == 'POST'
+    else:
         return process_recipe_form(request, recipe)
 
 
@@ -197,4 +177,28 @@ def recipes_for_user(request, username):
         request,
         "recipes/recipes_overview.html",
         {"recipes": recipes, "username": username},
+    )
+
+
+################################
+# Advanced search
+################################
+def advanced_search(request):
+    category_form = CategoryFilterForm(request.GET)
+    food_form = FoodFilterForm(request.GET)
+    _and = "_and" in request.GET
+    print(_and)
+    results = get_search_results(
+        request.GET.get("q"), request.GET.getlist("c"), request.GET.getlist("f"), _and
+    )
+
+    return render(
+        request,
+        "recipes/advanced_search.html",
+        {
+            "search_term": request.GET.get("q"),
+            "search_results": results,
+            "category_form": category_form,
+            "food_form": food_form,
+        },
     )

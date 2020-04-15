@@ -1,5 +1,5 @@
 {% load static %}
-<div id="recipeImageIndicators" class="carousel slide" data-ride="carousel">
+<div id="recipeImageIndicators" class="carousel slide" data-interval="false">
     <ol class="carousel-indicators">
         {% for img in images %}
         <li data-target="#recipeImageIndicators" data-slide-to="{{forloop.counter0}}" class="active"></li>

@@ -5,14 +5,11 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-
-##################################
-# Category
-##################################
+from watson import search as watson
 
 
 class Category(models.Model):
-    title = models.CharField(max_length=200, unique=True, verbose_name="Name")
+    title = models.CharField(max_length=255, unique=True, verbose_name="Name")
 
     def __str__(self):
         return self.title
@@ -21,7 +18,7 @@ class Category(models.Model):
         return self.recipe_set.all()
 
     def get_absolute_url(self):
-        return reverse("category-recipes", kwargs={"pk": self.pk})
+        return reverse("category-recipes", kwargs={"title": self.title})
 
     def random_recipe(self):
         cat = get_object_or_404(Category, pk=self.pk)
@@ -30,23 +27,15 @@ class Category(models.Model):
         )
 
 
-##################################
-# Food
-##################################
 class Food(models.Model):
-    name = models.CharField(max_length=200, unique=True, verbose_name="Food")
+    name = models.CharField(max_length=255, unique=True, verbose_name="Lebensmittel")
 
     def __str__(self):
         return self.name
 
 
-##################################
-# Recipe
-##################################
-
-
 class Recipe(models.Model):
-    title = models.CharField(max_length=200, verbose_name="Titel")
+    title = models.CharField(max_length=255, verbose_name="Titel")
     introduction = models.TextField(verbose_name="Einleitung", null=True)
     servings = models.DecimalField(
         max_digits=5, decimal_places=2, default=1, verbose_name="Portionen"
@@ -88,9 +77,6 @@ class Recipe(models.Model):
         ).first()
 
 
-##################################
-# Ingredient
-##################################
 class Ingredient(models.Model):
     amount = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Anzahl")
     unit = models.CharField(max_length=20, blank=True, verbose_name="Einheit")
@@ -105,9 +91,6 @@ class Ingredient(models.Model):
         return f"{str(Fraction(self.amount))}{self.unit} {self.food.name} {notes}"
 
 
-##################################
-# Recipe Images
-##################################
 class Image(models.Model):
     image = models.ImageField(
         default="default.jpg", upload_to="recipe_pics", verbose_name="Bilder"
@@ -131,3 +114,46 @@ class Image(models.Model):
             output_size = (1000, 1000)
             img.thumbnail(output_size)
             img.save(self.image.path)"""
+
+
+def get_search_results(search_term, categories, foods, contains_all=False):
+    recipes = Recipe.objects.all()
+    if search_term:
+        results = watson.search(search_term)
+        pks = [r.object_id_int for r in results]
+        recipes = recipes.filter(pk__in=pks)
+
+    if categories:
+        recipes = recipes.filter(categories__in=categories)
+
+    if foods:
+        if contains_all:
+            for food in foods:
+                ingredients = Ingredient.objects.filter(food=food)
+                recipe_pks = ingredients.values_list("recipe", flat=True)
+                recipes = recipes.filter(pk__in=recipe_pks)
+        else:
+            ingredients = Ingredient.objects.filter(food__in=foods)
+            recipe_pks = ingredients.values_list("recipe", flat=True)
+            recipes = recipes.filter(pk__in=recipe_pks)
+
+    return recipes.order_by("title")
+
+
+def get_converted_ingredients(recipe, new_servings):
+    ingredients = recipe.get_ingredients()
+    servings_original = recipe.servings
+    new_ingredients = []
+    for ing in ingredients:
+        amount_original = ing.amount
+        amount_new = (ing.amount / recipe.servings) * new_servings
+        new_ingredients.append(
+            Ingredient(
+                amount=amount_new,
+                unit=ing.unit,
+                food=ing.food,
+                notes=ing.notes,
+                recipe=None,
+            )
+        )
+    return new_ingredients

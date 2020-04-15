@@ -1,5 +1,4 @@
 {% extends "recipes/base.html" %}
-{% load static %}
 {% block content %}
 <div class="row my-4">
   <div class="col-10">
@@ -17,37 +16,14 @@
     <a class="btn btn-secondary" href="{% url 'recipe-create' %}">Rezept<i class="col-2 fas fa-plus"></i></a>
   </div>
 </div>
+{% if recipes %}
 <div class="card-columns">
   {% for recipe in recipes %}
-  <div class="card">
-    <div class="card-header">
-      <div class="row">
-        <div class="col-8">
-          <i class="far fa-clock"></i>
-          {{ recipe.prep_time }}
-        </div>
-        <div class="col-4">
-          <a class="recipe-card-link" href="{% url 'user-recipes' recipe.author.username%}"><i
-              class="fas fa-user"></i> {{ recipe.author }}</a>
-        </div>
-      </div>
-    </div>
-    <img class="card-img-top" src="{% if recipe.get_primary_image.get_url %} {{ recipe.get_primary_image.get_url }} {% else %} {% static 'recipes/default.jpg' %} {% endif %}" alt="Bild für {{ recipe.title }}">
-    <div class="card-body">
-      <h5 class="card-title text-center"><a class="recipe-card-link"
-          href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a></h5>
-      <hr>
-      <p class="card-text text-center">{{ recipe.introduction }}</p>
-    </div>
-    <div class="card-footer text-center">
-      {% for cat in recipe.get_categories %}
-      <a href="{% url 'category-recipes' cat.pk %}" class="badge badge-light">{{ cat.title }}</a>
-      {% endfor %}
-    </div>
-  </div>
+    {% include "recipes/recipe_card.html" with recipe=recipe %}
   {% endfor %}
 </div>
-{% if is_paginated %}
-{% include "recipes/pagination.html" %}
+{% else %}
+<p>Bisher keine Rezepte</p>
 {% endif %}
+{% include "recipes/pagination.html" with page_obj=recipes %}
 {% endblock content %}

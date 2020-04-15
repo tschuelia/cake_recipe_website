@@ -3,7 +3,7 @@ from django.forms import BaseInlineFormSet, inlineformset_factory, modelformset_
 from django.urls import reverse_lazy
 from django_addanother.widgets import AddAnotherWidgetWrapper
 
-from .models import Food, Image, Ingredient, Recipe
+from .models import Category, Food, Image, Ingredient, Recipe
 
 
 class RecipeForm(forms.ModelForm):
@@ -77,18 +77,19 @@ class BaseImageFormset(BaseInlineFormSet):
         if any(self.errors):
             return
 
-        selected = 0
+        selected_any_as_primary = False
         for form in self.forms:
             if self.can_delete and self._should_delete_form(form):
                 continue
-            if selected and form.cleaned_data.get("is_primary"):
+
+            if selected_any_as_primary and form.cleaned_data.get("is_primary"):
                 raise forms.ValidationError(
                     message="Es kann nur ein Bild als Titelbild gewählt werden.",
                     code="invalid",
                 )
 
             elif form.cleaned_data.get("is_primary"):
-                selected += 1
+                selected_any_as_primary = True
 
 
 ImageFormSet = inlineformset_factory(
@@ -99,3 +100,38 @@ ImageFormSet = inlineformset_factory(
     fields=("image", "is_primary",),
     extra=1,
 )
+
+
+class CategoryFilterForm(forms.Form):
+    c = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.all(),
+        widget=forms.SelectMultiple(
+            attrs={
+                "class": "selectpicker",
+                "data-live-search": "true",
+                "data-size": "5",
+                "title": "Suche in allen Kategorien",
+            }
+        ),
+        required=False,
+        label="Filtern nach Kategorien",
+    )
+
+
+class FoodFilterForm(forms.Form):
+    f = forms.ModelMultipleChoiceField(
+        queryset=Food.objects.all(),
+        widget=forms.SelectMultiple(
+            attrs={
+                "class": "selectpicker",
+                "data-live-search": "true",
+                "data-size": "5",
+            }
+        ),
+        required=False,
+        label="Filtern nach Zutaten",
+    )
+
+    _and = forms.BooleanField(
+        required=False, label="nur Rezepte die alle gewählten Zutaten enthalten",
+    )

@@ -1,0 +1,49 @@
+{% extends 'recipes/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<h3>Suche</h3>
+<form>
+    <div class="form-group">
+        <input class="form-control" id="searchbox" name="q" type="text" value="{{request.GET.q}}" placeholder="Suche"
+            aria-label="Suche">
+    </div>
+    <div class="form-row">
+        <div class="col">
+            <div class="my-4">
+                {{ category_form|crispy }}
+            </div>
+        </div>
+        <div class="col">
+            <div class="my-4">
+                {{ food_form|crispy }}
+            </div>
+        </div>
+    </div>
+
+    <!-- 
+    suche nach Zutaten:
+        radioboxes:
+            "enthält nur diese Zutaten" -> multiselect
+            "enthält mind eine der Zutaten" -> multiselect
+    ausschließen von Zutaten:
+        "enthält kein ..." -> multiselect
+ -->
+    <button class="btn btn-secondary my-2 my-sm-0" type="submit"><i class="fas fa-search"></i> Suchen</button>
+</form>
+<hr>
+<!-- 
+    search results here
+ -->
+{% if search_term %}
+<h3>Suchergebnisse</h3>
+{% endif %}
+{% if search_results %}
+<div class="card-columns">
+    {% for recipe in search_results %}
+    {% include "recipes/recipe_card.html" with recipe=recipe %}
+    {% endfor %}
+</div>
+{% else %}
+Keine Rezepte gefunden.
+{% endif %}
+{% endblock content %}
