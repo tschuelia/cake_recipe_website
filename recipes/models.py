@@ -86,7 +86,7 @@ class Ingredient(models.Model):
     food = models.ForeignKey(Food, on_delete=models.PROTECT, verbose_name="Zutat")
     notes = models.TextField(blank=True, verbose_name="Notiz")
     recipe = models.ForeignKey(
-        Recipe, related_name="belongs_to", on_delete=models.CASCADE, null=True
+        Recipe, related_name="belongs_to", on_delete=models.CASCADE, null=False
     )
 
     def __str__(self):
@@ -119,7 +119,9 @@ class Image(models.Model):
             img.save(self.image.path)"""
 
 
-def get_search_results(search_term, categories, foods, contains_all=False):
+def get_search_results(
+    search_term, categories, foods, excluded_foods, contains_all=False
+):
     recipes = Recipe.objects.all()
     if search_term:
         results = watson.search(search_term)
@@ -139,6 +141,11 @@ def get_search_results(search_term, categories, foods, contains_all=False):
             ingredients = Ingredient.objects.filter(food__in=foods)
             recipe_pks = ingredients.values_list("recipe", flat=True)
             recipes = recipes.filter(pk__in=recipe_pks)
+
+    if excluded_foods:
+        ingredients = Ingredient.objects.filter(food__in=excluded_foods)
+        recipe_pks = ingredients.values_list("recipe", flat=True)
+        recipes = recipes.exclude(pk__in=recipe_pks)
 
     return recipes.order_by("title")
 

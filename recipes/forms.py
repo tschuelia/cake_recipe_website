@@ -126,7 +126,7 @@ class CategoryFilterForm(forms.Form):
                 "class": "selectpicker",
                 "data-live-search": "true",
                 "data-size": "5",
-                "title": "Suche in allen Kategorien",
+                "title": "Kategorien wählen",
             }
         ),
         required=False,
@@ -142,6 +142,7 @@ class FoodFilterForm(forms.Form):
                 "class": "selectpicker",
                 "data-live-search": "true",
                 "data-size": "5",
+                "title": "Zutaten wählen",
             }
         ),
         required=False,
@@ -150,4 +151,20 @@ class FoodFilterForm(forms.Form):
 
     _and = forms.BooleanField(
         required=False, label="nur Rezepte die alle gewählten Zutaten enthalten",
+    )
+
+
+class ExcludeFoodForm(forms.Form):
+    ex = forms.ModelMultipleChoiceField(
+        queryset=Food.objects.all(),
+        widget=forms.SelectMultiple(
+            attrs={
+                "class": "selectpicker",
+                "data-live-search": "true",
+                "data-size": "5",
+                "title": "Zutaten wählen",
+            }
+        ),
+        required=False,
+        label="Nur Rezepte ohne...",
     )

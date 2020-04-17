@@ -19,15 +19,14 @@
             </div>
         </div>
     </div>
+    <div class="form-row">
+        <div class="col-md-6">
+            <div class="my-4">
+                {{ exclude_food_form|crispy }}
+            </div>
+        </div>
+    </div>
 
-    <!-- 
-    suche nach Zutaten:
-        radioboxes:
-            "enthält nur diese Zutaten" -> multiselect
-            "enthält mind eine der Zutaten" -> multiselect
-    ausschließen von Zutaten:
-        "enthält kein ..." -> multiselect
- -->
     <button class="btn btn-secondary my-2 my-sm-0" type="submit"><i class="fas fa-search"></i> Suchen</button>
 </form>
 <hr>

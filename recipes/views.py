@@ -14,6 +14,7 @@ from django_addanother.views import CreatePopupMixin
 
 from .forms import (
     CategoryFilterForm,
+    ExcludeFoodForm,
     FoodFilterForm,
     ImageFormSet,
     IngredientFormSet,
@@ -186,10 +187,14 @@ def recipes_for_user(request, username):
 def advanced_search(request):
     category_form = CategoryFilterForm(request.GET)
     food_form = FoodFilterForm(request.GET)
+    exclude_food_form = ExcludeFoodForm(request.GET)
     _and = "_and" in request.GET
-    print(_and)
     results = get_search_results(
-        request.GET.get("q"), request.GET.getlist("c"), request.GET.getlist("f"), _and
+        request.GET.get("q"),
+        request.GET.getlist("c"),
+        request.GET.getlist("f"),
+        request.GET.getlist("ex"),
+        _and,
     )
 
     return render(
@@ -200,5 +205,6 @@ def advanced_search(request):
             "search_results": results,
             "category_form": category_form,
             "food_form": food_form,
+            "exclude_food_form": exclude_food_form,
         },
     )
