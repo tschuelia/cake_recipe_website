@@ -73,9 +73,19 @@
       <div class="form-group mb-0">
         {{ form.notes|as_crispy_field }}
       </div>
-      <div class="form-group col-md-6 mb-0">
-        {{ form.categories|as_crispy_field }} {{form.media}}
+      <div class="row">
+        <div class="col md-6">
+          <div class="form-group mb-0">
+            {{ form.related_recipes|as_crispy_field }}
+          </div>
+        </div>
+        <div class="col md-6">
+          <div class="form-group mb-0">
+            {{ form.categories|as_crispy_field }} {{form.media}}
+          </div>
+        </div>
       </div>
+      
 
       <div>
         <h5 class="mt-5">Bilder</h5>

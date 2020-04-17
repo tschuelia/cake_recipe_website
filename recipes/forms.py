@@ -12,8 +12,24 @@ class RecipeForm(forms.ModelForm):
         exclude = ["author"]
         widgets = {
             "categories": AddAnotherWidgetWrapper(
-                forms.SelectMultiple, reverse_lazy("category-create"),
-            )
+                forms.SelectMultiple(
+                    attrs={
+                        "class": "selectpicker",
+                        "data-live-search": "true",
+                        "data-size": "5",
+                        "title": "Wähle Kategorien",
+                    }
+                ),
+                reverse_lazy("category-create"),
+            ),
+            "related_recipes": forms.SelectMultiple(
+                attrs={
+                    "class": "selectpicker",
+                    "data-live-search": "true",
+                    "data-size": "5",
+                    "title": "Suche nach Rezepten",
+                }
+            ),
         }
 
 

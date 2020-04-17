@@ -45,6 +45,9 @@ class Recipe(models.Model):
     categories = models.ManyToManyField(Category, blank=True, verbose_name="Kategorien")
     author = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True)
     notes = models.TextField(verbose_name="Notizen", blank=True)
+    related_recipes = models.ManyToManyField(
+        "self", blank=True, symmetrical=False, verbose_name="zugehörige Rezepte",
+    )
 
     def __str__(self):
         return self.title

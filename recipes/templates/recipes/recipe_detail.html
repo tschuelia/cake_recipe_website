@@ -42,18 +42,29 @@
         <button type="submit" class="btn btn-sm"><i class="fas fa-sync-alt"></i></button>
       </form>
     </div>
-    <div class="row mb-">
+    <div class="row">
       <a class="col-sm-6 col-md-3 recipe-detail-link" href="{% url 'user-recipes' recipe.author.username %}">
         <i class="fas fa-user fa-lg mr-2"></i>{{ recipe.author.username }}
       </a>
     </div>
 
+    {% if recipe.related_recipes.all %}
+      <hr>
+      <p><i class="fas fa-info-circle fa-lg"></i>  Zugehörige Rezepte</p>
+      {% for rec in recipe.related_recipes.all %}
+      <div class="row">
+        <a class="col-sm-12 col-md-12 recipe-detail-link" href="{% url 'recipe-detail' rec.pk %}">{{ rec.title }}</a>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+
     <hr>
+    <div class="row">
     {% for cat in recipe.get_categories %}
-    <div class="row mb-2">
-      <a href="{% url 'category-recipes' cat.title %}" class="badge badge-light">{{ cat.title }}</a>
-    </div>
+      <a href="{% url 'category-recipes' cat.title %}" class="badge badge-light mr-2">{{ cat.title }}</a>
     {% endfor %}
+    </div>
   </div>
 </div>
 <hr>
