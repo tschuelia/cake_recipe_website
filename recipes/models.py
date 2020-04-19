@@ -2,7 +2,9 @@ from fractions import Fraction
 from random import randint
 
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.db import models
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from watson import search as watson
@@ -14,17 +16,20 @@ class Category(models.Model):
     def __str__(self):
         return self.title
 
-    def get_recipes(self):
-        return self.recipe_set.all()
+    def get_recipes(self, user):
+        if not user.is_authenticated:
+            return self.recipe_set.filter(public=True)
+
+        if user.is_superuser:
+            return self.recipe_set.all()
+
+        return self.recipe_set.filter(Q(public=True) | Q(author=user))
 
     def get_absolute_url(self):
         return reverse("category-recipes", kwargs={"title": self.title})
 
-    def random_recipe(self):
-        cat = get_object_or_404(Category, pk=self.pk)
-        return (
-            Recipe.objects.filter(categories__pk__contains=cat.pk).order_by("?").first()
-        )
+    def random_recipe(self, user):
+        return self.get_recipes(user).order_by("?").first()
 
 
 class Food(models.Model):
@@ -48,6 +53,7 @@ class Recipe(models.Model):
     related_recipes = models.ManyToManyField(
         "self", blank=True, symmetrical=False, verbose_name="zugehörige Rezepte",
     )
+    public = models.BooleanField(default=False, verbose_name="für alle sichtbar")
 
     def __str__(self):
         return self.title
@@ -78,6 +84,19 @@ class Recipe(models.Model):
         return Image.objects.filter(
             recipe__pk__contains=self.pk, is_primary=True
         ).first()
+
+    def check_view_permissions(self, user):
+        # admins may see everything
+        if user.is_superuser:
+            return
+
+        # users that are not logged in may only see public recipes
+        if not (user.is_authenticated or self.public):
+            raise PermissionDenied
+
+        # logged in users may only see their own and public recipes
+        if not (self.author == user or self.public):
+            raise PermissionDenied
 
 
 class Ingredient(models.Model):
@@ -119,10 +138,20 @@ class Image(models.Model):
             img.save(self.image.path)"""
 
 
+def get_recipe_list(user):
+    if not user.is_authenticated:
+        return Recipe.objects.filter(public=True)
+
+    if user.is_superuser:
+        return Recipe.objects.all()
+
+    return Recipe.objects.filter(Q(public=True) | Q(author=user))
+
+
 def get_search_results(
-    search_term, categories, foods, excluded_foods, contains_all=False
+    user, search_term, categories, foods, excluded_foods, contains_all=False
 ):
-    recipes = Recipe.objects.all()
+    recipes = get_recipe_list(user)
     if search_term:
         results = watson.search(search_term)
         pks = [r.object_id_int for r in results]

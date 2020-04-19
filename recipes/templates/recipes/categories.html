@@ -9,16 +9,14 @@
   </div>
 </div>
 <div class="card-columns">
-  {% for cat, recipe in categories %}
+  {% for cat, recipes in categories %}
   <div class="card">
     <div class="card-header">
       <h5 class="card-title text-center"><a class="recipe-card-link"
           href="{% url 'category-recipes' cat.title %}">{{ cat.title }}</a></h5>
     </div>
     <div class="card-body">
-      {% if cat.get_recipes|length < 1 %}
-      <p class="card-text text-center">Bisher keine Rezepte in dieser Kategorie.</p>
-      {% else %}
+      {% if recipes %}
       <ul class="list-group list-group-flush">
         <li class="list-group-item">Rezepte in dieser Kategorie</li>
         {% if cat.get_recipes|length > 2 %}
@@ -29,12 +27,14 @@
         <li class="list-group-item"><a class="recipe-card-link"
             href="{% url 'category-recipes' cat.title %}">...mehr...</a></li>
         {% else %}
-        {% for rec in cat.get_recipes %}
+        {% for rec in recipes %}
         <li class="list-group-item"><a class="recipe-card-link"
             href="{% url 'recipe-detail' rec.pk %}">{{ rec.title }}</a></li>
         {% endfor %}
         {% endif %}
       </ul>
+      {% else %}
+      <p class="card-text text-center">Bisher keine Rezepte in dieser Kategorie.</p>
       {% endif %}
     </div>
   </div>

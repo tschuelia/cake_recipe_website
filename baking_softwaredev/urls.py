@@ -64,6 +64,10 @@ urlpatterns = [
     path("", include("recipes.urls")),
 ]
 
+handler404 = "recipes.error_views.page_not_found"
+handler403 = "recipes.error_views.permission_denied"
+
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

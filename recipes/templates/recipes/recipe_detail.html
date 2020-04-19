@@ -2,8 +2,9 @@
 {% block content %}
 <div class="row">
   <div class="col-10">
-    <h2 class="recipe-detail-title text-truncate">{{ recipe.title }}</h2>
+    <h2 class="recipe-detail-title text-truncate d-inline">{{ recipe.title }}</h2> 
   </div>
+
   {% if recipe.author == user%}
   <div class="col-2">
     <a href="{% url 'recipe-update' recipe.id %}" class="btn text-dark"><i class="fas fa-edit"></i></a>
@@ -22,6 +23,14 @@
       {{ recipe.introduction }}
     </div>
     <hr>
+    {% if not recipe.public %}
+    <div class="row mb-2 text-muted">
+      <div class="col-sm-2 col-md-1">
+          <i class="fas fa-lock fa-lg"></i>
+      </div>
+      <div>nicht öffentlich</div>
+    </div>
+  {% endif %}
     <div class="row mb-2">
       <div class="col-sm-2 col-md-1">
         <i class="far fa-clock clock-icon fa-lg"></i>
@@ -53,7 +62,7 @@
       <p><i class="fas fa-info-circle fa-lg"></i>  Zugehörige Rezepte</p>
       {% for rec in recipe.related_recipes.all %}
       <div class="row">
-        <a class="col-sm-12 col-md-12 recipe-detail-link" href="{% url 'recipe-detail' rec.pk %}">{{ rec.title }}</a>
+        <a class="col-sm-12 col-md-12 recipe-detail-link" href="{% url 'recipe-detail' rec.pk %}">{{ rec.title }} {% if not rec.public %}<i class="fas fa-lock fa-xs text-muted"></i>{% endif %}</a>
       </div>
       {% endfor %}
     {% endif %}

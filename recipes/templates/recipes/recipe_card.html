@@ -15,7 +15,7 @@
     <img class="card-img-top" src="{% if recipe.get_primary_image.get_url %} {{ recipe.get_primary_image.get_url }} {% else %} {% static 'recipes/default.jpg' %} {% endif %}" alt="Bild für {{ recipe.title }}">
     <div class="card-body">
       <h5 class="card-title text-center"><a class="recipe-card-link"
-          href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a></h5>
+          href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a> {% if not recipe.public %}<i class="fas fa-lock fa-xs text-muted"></i>{% endif %} </h5>
       <hr>
       <p class="card-text text-center">{{ recipe.introduction }}</p>
     </div>

@@ -18,6 +18,7 @@ class RecipeForm(forms.ModelForm):
                         "data-live-search": "true",
                         "data-size": "5",
                         "title": "Wähle Kategorien",
+                        "data-actions-box": "true",
                     }
                 ),
                 reverse_lazy("category-create"),
@@ -127,6 +128,7 @@ class CategoryFilterForm(forms.Form):
                 "data-live-search": "true",
                 "data-size": "5",
                 "title": "Kategorien wählen",
+                "data-actions-box": "true",
             }
         ),
         required=False,
@@ -143,6 +145,7 @@ class FoodFilterForm(forms.Form):
                 "data-live-search": "true",
                 "data-size": "5",
                 "title": "Zutaten wählen",
+                "data-actions-box": "true",
             }
         ),
         required=False,
@@ -163,6 +166,7 @@ class ExcludeFoodForm(forms.Form):
                 "data-live-search": "true",
                 "data-size": "5",
                 "title": "Zutaten wählen",
+                "data-actions-box": "true",
             }
         ),
         required=False,

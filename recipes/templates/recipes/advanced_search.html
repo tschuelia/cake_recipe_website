@@ -1,10 +1,11 @@
 {% extends 'recipes/base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 {% block content %}
 <h3>Suche</h3>
 <form>
     <div class="form-group">
-        <input class="form-control" id="searchbox" name="q" type="text" value="{{request.GET.q}}" placeholder="Suche"
+        <input class="form-control" id="searchbox_advanced" name="q" type="text" value="{{request.GET.q}}" placeholder="Suche"
             aria-label="Suche">
     </div>
     <div class="form-row">
@@ -46,3 +47,8 @@
 Keine Rezepte gefunden.
 {% endif %}
 {% endblock content %}
+
+
+{% block javascript %}
+    <script src="{% static 'recipes/selectpicker.js' %}"></script>
+{% endblock javascript %}

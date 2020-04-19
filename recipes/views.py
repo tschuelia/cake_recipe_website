@@ -27,6 +27,7 @@ from .models import (
     Ingredient,
     Recipe,
     get_converted_ingredients,
+    get_recipe_list,
     get_search_results,
 )
 
@@ -39,8 +40,8 @@ def categories_overview(request):
     cats = Category.objects.all().order_by("title").all()
     categories = []
     for cat in cats:
-        categories.append((cat, cat.random_recipe()))
-    return render(request, "recipes/categories.html", {"categories": categories})
+        categories.append((cat, cat.get_recipes(request.user)))
+    return render(request, "recipes/categories.html", {"categories": categories},)
 
 
 class CategoryCreateView(CreatePopupMixin, LoginRequiredMixin, CreateView):
@@ -54,7 +55,7 @@ class CategoryCreateView(CreatePopupMixin, LoginRequiredMixin, CreateView):
 
 def category_recipe_view(request, title):
     cat = get_object_or_404(Category, title=title)
-    recipe_list = cat.get_recipes()
+    recipe_list = cat.get_recipes(request.user)
 
     paginator = Paginator(recipe_list, 15)
     page = request.GET.get("page")
@@ -70,7 +71,7 @@ def category_recipe_view(request, title):
 # Recipe views
 ################################
 def recipe_overview(request):
-    recipe_list = Recipe.objects.all().order_by("title")
+    recipe_list = get_recipe_list(request.user)
     paginator = Paginator(recipe_list, 15)
     page = request.GET.get("page")
     recipes = paginator.get_page(page)
@@ -79,6 +80,7 @@ def recipe_overview(request):
 
 def recipe_detail(request, pk):
     recipe = get_object_or_404(Recipe, pk=pk)
+    recipe.check_view_permissions(request.user)
 
     if request.GET.get("number_servings"):
         servings = Decimal(request.GET.get("number_servings"))
@@ -173,7 +175,8 @@ class RecipeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 # User views
 ################################
 def recipes_for_user(request, username):
-    recipes = Recipe.objects.filter(author__username=username)
+    recipes = get_recipe_list(request.user)
+    recipes = recipes.filter(author__username=username)
     return render(
         request,
         "recipes/recipes_overview.html",
@@ -190,6 +193,7 @@ def advanced_search(request):
     exclude_food_form = ExcludeFoodForm(request.GET)
     _and = "_and" in request.GET
     results = get_search_results(
+        request.user,
         request.GET.get("q"),
         request.GET.getlist("c"),
         request.GET.getlist("f"),
