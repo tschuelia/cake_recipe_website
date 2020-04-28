@@ -5,3 +5,4 @@ django-addanother
 django-watson
 pillow
 whitenoise<6
+gunicorn
