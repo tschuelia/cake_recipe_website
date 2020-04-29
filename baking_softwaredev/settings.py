@@ -27,7 +27,7 @@ SECRET_KEY = "2zmv%$(z$*-_wfes7go&nmu$d1sf=@s_47j4isbin=uhc1#v+h"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "http://rezepte.juliaschmid.com/"]
 
 
 # Application definition
@@ -147,4 +147,4 @@ INTERNAL_IPS = [
     # ...
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")

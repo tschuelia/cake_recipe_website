@@ -6,3 +6,4 @@ django-watson
 pillow
 whitenoise<6
 gunicorn
+dj_static

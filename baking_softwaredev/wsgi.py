@@ -11,6 +11,9 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'baking_softwaredev.settings')
+from dj_static import MediaCling
 
-application = get_wsgi_application()
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "baking_softwaredev.settings")
+
+
+application = MediaCling(get_wsgi_application())
