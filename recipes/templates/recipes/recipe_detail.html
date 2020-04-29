@@ -19,27 +19,23 @@
     {% include "recipes/image_slideshow.html" with images=recipe.get_images %}
   </div>
   <div class="col-md-6">
-    <div>
-      {{ recipe.introduction }}
+    <div class="text-center">
+      <big>
+        {{ recipe.introduction }}
+      </big>
     </div>
     <hr>
-    {% if not recipe.public %}
-    <div class="row mb-2 text-muted">
-      <div class="col-sm-2 col-md-1">
-          <i class="fas fa-lock fa-lg"></i>
-      </div>
-      <div>nicht öffentlich</div>
-    </div>
-  {% endif %}
+
+    <!-- Servings, prep_time etc. -->
     <div class="row mb-2">
       <div class="col-sm-2 col-md-1">
-        <i class="far fa-clock clock-icon fa-lg"></i>
+        <i class="far fa-clock clock-icon"></i>
       </div>
       <div>{{ recipe.prep_time }}</div>
     </div>
     <div class="row mb-2">
       <div class="col-sm-2 col-md-1">
-        <i class="fas fa-utensils servings-icon fa-lg"></i>
+        <i class="fas fa-utensils servings-icon"></i>
       </div>
 
       <form class="form-inline">
@@ -51,15 +47,23 @@
         <button type="submit" class="btn btn-sm"><i class="fas fa-sync-alt"></i></button>
       </form>
     </div>
-    <div class="row">
+    <div class="row  mb-2">
       <a class="col-sm-6 col-md-3 recipe-detail-link" href="{% url 'user-recipes' recipe.author.username %}">
-        <i class="fas fa-user fa-lg mr-2"></i>{{ recipe.author.username }}
+        <i class="fas fa-user mr-2"></i>{{ recipe.author.username }}
       </a>
     </div>
+    {% if not recipe.public %}
+    <div class="row text-muted">
+      <div class="col-sm-2 col-md-1">
+          <i class="fas fa-lock"></i>
+      </div>
+      <div>nicht öffentlich</div>
+    </div>
+  {% endif %}
 
     {% if recipe.related_recipes.all %}
       <hr>
-      <p><i class="fas fa-info-circle fa-lg"></i>  Zugehörige Rezepte</p>
+      <p class="text-muted"><i class="fas fa-info-circle"></i>  Zugehörige Rezepte</p>
       {% for rec in recipe.related_recipes.all %}
       <div class="row">
         <a class="col-sm-12 col-md-12 recipe-detail-link" href="{% url 'recipe-detail' rec.pk %}">{{ rec.title }} {% if not rec.public %}<i class="fas fa-lock fa-xs text-muted"></i>{% endif %}</a>
