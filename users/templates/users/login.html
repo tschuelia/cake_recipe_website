@@ -6,17 +6,17 @@
       <legend class="border-bottom mb-4">Log In</legend>
       {{ form|crispy }}
     </fieldset>
-    <div class="form-group">
-      <button class="btn btn-outline-info" type="submit">Login</button>
-      <small class="text-muted ml-2">
-                  <a href="{% url 'password_reset' %}">Forgot Password?</a>
-      </small>
+    <small class="text-muted">
+      <a href="{% url 'password_reset' %}" class="text-reset">Passwort vergessen?</a>
+    </small>
+    <div class="form-group mt-2">
+      <button class="btn btn-outline-secondary" type="submit">Login</button>
     </div>
   </form>
   <div class="border-top pt-3">
     <small class="text-muted">
-                No account yet? <a class="ml-2" href="{% url 'register' %}">Sign Up Now!</a>
-            </small>
+      Noch keinen Account? <a class="text-reset ml-2" href="{% url 'register' %}">Jetzt registrieren!</a>
+    </small>
   </div>
 </div>
 {% endblock content %}

@@ -1,8 +1,15 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.shortcuts import redirect, render
 
 from .forms import UserRegisterForm, UserUpdateForm
+
+
+def send_registration_information(username):
+    content = f"Ein neuer Nutzer hat sich auf rezepte.juliaschmid.com registriert: {username}."
+    send_mail("Neuer User", content, settings.FROM_EMAIL, settings.ADMIN_EMAILS)
 
 
 def register(request):
@@ -11,6 +18,7 @@ def register(request):
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get("username")
+            send_registration_information(username)
             messages.success(
                 request, f"Account created for {username}! You can now login!"
             )
@@ -27,7 +35,7 @@ def profile(request):
 
         if u_form.is_valid():
             u_form.save()
-            messages.success(request, f"Account updated!")
+            messages.success(request, f"Deine Mail-Adresse wurde geändert!")
             return redirect("profile")
     else:
         u_form = UserUpdateForm(instance=request.user)

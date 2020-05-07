@@ -130,6 +130,8 @@ LOGIN_REDIRECT_URL = "recipes-home"
 LOGIN_URL = "login"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+FROM_EMAIL = "admin@juliaschmid.com"
+ADMIN_EMAILS = ["julia@juliaschmid.com"]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"

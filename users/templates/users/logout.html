@@ -1,8 +1,8 @@
 {% extends "recipes/base.html" %} {% block content %}
 <h2>Logout successfull.</h2>
 <div class="border-top pt-3">
-  <small class="text-muted">
-            <a href="{% url 'login' %}">Log in again!</a>
-        </small>
+  <small>
+    <a class="text-muted" href="{% url 'login' %}">Log in again!</a>
+  </small>
 </div>
 {% endblock content %}
