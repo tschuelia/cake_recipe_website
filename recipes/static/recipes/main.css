@@ -1,3 +1,31 @@
+.navbar-recipes {
+    background-color: #f8f9fa;
+}
+
+/* change the brand and text color */
+.navbar-recipes .navbar-brand,
+.navbar-recipes .navbar-text {
+    color: purple;
+}
+
+/* change the link color */
+.navbar-recipes .navbar-nav .nav-link {
+    color: purple;
+    font-size: large;
+}
+
+/* change the link color */
+.navbar-recipes .nav-link {
+    color: purple;
+}
+
+/* change the color of active or hovered links */
+.navbar-recipes .nav-item.active .nav-link,
+.navbar-recipes .nav-item:hover .nav-link {
+    color: plum;
+}
+
+
 .recipe-card-link {
     color: purple;
 }
@@ -28,19 +56,6 @@
     text-decoration: none;
 }
 
-.navbar-recipes {
-    background-color: #f8f9fa;
-}
-
-.nav-link-recipes {
-    color: purple !important;
-    font-size: large;
-}
-
-
-.nav-link-recipes:hover {
-    color: plum !important;
-}
 
 .nav-link-button {
     border-color: #ced4da !important;
@@ -48,4 +63,8 @@
 
 .nav-link-button:hover {
     background-color: #ced4da !important;
+}
+
+.btn-outline-recipe {
+    outline-color: purple;
 }

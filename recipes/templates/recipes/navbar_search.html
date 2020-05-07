@@ -1,11 +1,10 @@
-<form class="form-inline my-2 mx-2 my-lg-0" id="searchform" accept-charset="utf-8" action={% url 'advanced-search' %} method=GET>
+<form class="form-inline my-2 mx-2 my-lg-0" id="searchform" accept-charset="utf-8" action={% url 'advanced-search' %}
+    method=GET>
     <div class="input-group">
-        <input class="form-control" id="searchbox" name="q" type="text" value="{{request.GET.q}}" placeholder="Suche"
-            aria-label="Suche">
+        <input id="searchbox" name="q" type="text" class="form-control" value="{{request.GET.q}}" placeholder="Suche" aria-label="Suche">
         <div class="input-group-append">
-            <a class="btn btn-outline-dark my-2 my-sm-0 nav-link-button" href="{% url 'advanced-search' %}"><i
-                    class="fas fa-sliders-h"></i></a>
-            <button class="btn btn-outline-dark my-2 my-sm-0 nav-link-button" type="submit"><i class="fas fa-search"></i></button>
+            <a class="btn btn-outline-secondary nav-link-button" href="{% url 'advanced-search' %}"><i class="fas fa-sliders-h"></i></a>
+            <button class="btn btn-outline-secondary nav-link-button" type="submit"><i class="fas fa-search"></i></button>
         </div>
     </div>
 </form>

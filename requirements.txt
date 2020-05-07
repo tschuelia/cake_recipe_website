@@ -7,3 +7,5 @@ pillow
 whitenoise<6
 gunicorn
 dj_static
+django-activeurl
+django-model-utils

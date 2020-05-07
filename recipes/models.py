@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from model_utils.models import TimeStampedModel
 from watson import search as watson
 
 
@@ -18,12 +19,14 @@ class Category(models.Model):
 
     def get_recipes(self, user):
         if not user.is_authenticated:
-            return self.recipe_set.filter(public=True)
+            return self.recipe_set.filter(public=True).order_by("-modified")
 
         if user.is_superuser:
-            return self.recipe_set.all()
+            return self.recipe_set.all().order_by("-modified")
 
-        return self.recipe_set.filter(Q(public=True) | Q(author=user))
+        return self.recipe_set.filter(Q(public=True) | Q(author=user)).order_by(
+            "-modified"
+        )
 
     def get_absolute_url(self):
         return reverse("category-recipes", kwargs={"title": self.title})
@@ -39,7 +42,7 @@ class Food(models.Model):
         return self.name
 
 
-class Recipe(models.Model):
+class Recipe(TimeStampedModel):
     title = models.CharField(max_length=255, verbose_name="Titel")
     introduction = models.TextField(verbose_name="Einleitung", null=True)
     servings = models.DecimalField(
@@ -140,12 +143,12 @@ class Image(models.Model):
 
 def get_recipe_list(user):
     if not user.is_authenticated:
-        return Recipe.objects.filter(public=True)
+        return Recipe.objects.filter(public=True).order_by("-modified")
 
     if user.is_superuser:
-        return Recipe.objects.all()
+        return Recipe.objects.all().order_by("-modified")
 
-    return Recipe.objects.filter(Q(public=True) | Q(author=user))
+    return Recipe.objects.filter(Q(public=True) | Q(author=user)).order_by("-modified")
 
 
 def get_search_results(

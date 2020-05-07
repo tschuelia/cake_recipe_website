@@ -1,0 +1,2 @@
+- markdown editor in RecipeForm
+- Emails versenden bei PWänderung etc.
