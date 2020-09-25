@@ -23,75 +23,88 @@
   {% endfor %}
 </div>
 <hr>
-<div class="row">
-  <!-- image slideshow -->
-  <div class="col-md-6">
-    {% include "recipes/image_slideshow.html" with images=recipe.get_images %}
-  </div>
-  <div class="col-md-6">
-    <!-- introduction -->
-    <div class="text-center">
-      <big>{{ recipe.introduction }}</big>
-    </div>
-    <hr>
-    <!-- if not public show lock -->
-    {% if not recipe.public %}
-    <div>
-      <p class="text-muted"><i class="fas fa-lock"></i> nicht öffentlich</p>
-    </div>
-    {% endif %}
-    <!-- preptime -->
-    <div>
-      <p><i class="far fa-clock fa-lg"></i> {{ recipe.prep_time }}</p>
-    </div>
-
-    <!-- Servings -->
-    <form class="form-inline">
-
-      <div class="input-group">
-        <label for="number_servings"><i class="fas fa-utensils servings-icon fa-lg"></i></label>
-        <input type="number" step="any" class="mx-2 form-control form-control-sm" value="{{ servings }}"
-          name="number_servings">
-        <div class="input-group-append">
-          <button class="btn btn-sm" type="submit" id="button-addon2"><i class="fas fa-sync-alt"></i></button>
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <!-- introduction -->
+        <div class="text-center">
+          <big>{{ recipe.introduction }}</big>
         </div>
-      </div>
-    </form>
+        <hr>
+        <!-- if not public show lock -->
+        {% if not recipe.public %}
+        <div>
+          <p class="text-muted"><i class="fas fa-lock"></i> nicht öffentlich</p>
+        </div>
+        {% endif %}
+        <!-- preptime -->
+        <div>
+          <p><i class="far fa-clock fa-lg"></i> {{ recipe.prep_time }}</p>
+        </div>
 
-    <!-- related recipes -->
-    {% if recipe.related_recipes.all %}
-    <hr>
-    <p><i class="fas fa-info-circle"></i> Verlinkte Rezepte</p>
+        <!-- Servings -->
+        <form class="form-inline">
+
+          <div class="input-group">
+            <label for="number_servings"><i class="fas fa-utensils servings-icon fa-lg"></i></label>
+            <input type="number" step="any" class="mx-2 form-control form-control-sm" value="{{ servings }}"
+              name="number_servings">
+            <div class="input-group-append">
+              <button class="btn btn-sm" type="submit" id="button-addon2"><i class="fas fa-sync-alt"></i></button>
+            </div>
+          </div>
+        </form>
+
+        <!-- related recipes -->
+        {% if recipe.related_recipes.all %}
+        <hr>
+        <p><i class="fas fa-paperclip fa-lg"></i> Verlinkte Rezepte</p>
+        <ul>
+          {% for rec in recipe.related_recipes.all %}
+          <li>
+            <a class="recipe-detail-link" href="{% url 'recipe-detail' rec.pk %}">{{ rec.title }}
+              {% if not rec.public %}<i class="fas fa-lock fa-xs text-muted"></i>{% endif %}</a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <!-- image slideshow -->
+      <div class="col-md-6">
+        {% include "recipes/image_slideshow.html" with images=recipe.get_images %}
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<br>
+<div class="card">
+  <h5 class="recipe-detail-ingredients card-header">Zutaten</h5>
+  <div class="card-body">
     <ul>
-      {% for rec in recipe.related_recipes.all %}
-      <li>
-        <a class="recipe-detail-link" href="{% url 'recipe-detail' rec.pk %}">{{ rec.title }} {% if not rec.public %}<i
-            class="fas fa-lock fa-xs text-muted"></i>{% endif %}</a>
-      </li>
+      {% for ing in ingredients %}
+      <li>{{ ing }}</li>
       {% endfor %}
     </ul>
-    {% endif %}
   </div>
 </div>
+<br>
+<div class="card">
+  <h5 class="recipe-detail-instructions card-header">Zubereitung</h5>
+  <div class="card-body">
+    <p>{{ recipe.directions|linebreaks }}</p>
+  </div>
 </div>
 <br>
-<hr>
-<h5 class="recipe-detail-ingredients">Zutaten</h5>
-<hr>
-<ul>
-  {% for ing in ingredients %}
-  <li>{{ ing }}</li>
-  {% endfor %}
-</ul>
-<br>
-<hr>
-<h5 class="recipe-detail-instructions">Zubereitung</h5>
-<hr>
-<p>{{ recipe.directions|linebreaks }}</p>
-<br>
-<hr>
-<h7 class="recipe-detail-instructions">Anmerkungen</h7>
-<hr>
-<p>{{ recipe.notes|linebreaks }}</p>
+{% if recipe.notes %}
+<div class="card">
+  <h7 class="recipe-detail-instructions card-header">Anmerkungen</h7>
+  <div class="card-body">
+    <p>{{ recipe.notes|linebreaks }}</p>
+  </div>
+</div>
+{% endif %}
+
 
 {% endblock content %}
