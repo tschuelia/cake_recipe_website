@@ -125,7 +125,7 @@ def pretty_print_amount(amount):
 
     # number is simple int, so no pretty printing needed
     if frac.denominator == 1:
-        return str(int(amount)).rstrip("0")
+        return str(frac.numerator)
 
     # check if number is a neat fraction
     if frac.numerator < frac.denominator and frac.denominator <= 10:
