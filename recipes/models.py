@@ -115,21 +115,24 @@ class Ingredient(models.Model):
     def __str__(self):
         notes = f"({self.notes})" if len(self.notes) > 0 else ""
         return (
-            f"{pretty_print_number(self.amount)} {self.unit} {self.food.name} {notes}"
+            f"{pretty_print_amount(self.amount)} {self.unit} {self.food.name} {notes}"
         )
 
 
-def pretty_print_number(number):
-    if isinstance(number, int):
-        return str(number)
+def pretty_print_amount(amount):
+    # convert number to fraction
+    frac = Fraction(amount)
 
-    # print number as fraction if number is < 1
-    # round to accuracy 1/10
-    if number <= 1:
-        return str(number.quantize(Decimal("1.000")))
+    # number is simple int, so no pretty printing needed
+    if frac.denominator == 1:
+        return str(int(amount)).rstrip("0")
 
-    else:
-        return str(round(number))
+    # check if number is a neat fraction
+    if frac.numerator < frac.denominator and frac.denominator <= 10:
+        return str(frac).rstrip("0")
+
+    # if the number is weirder, round it to a three decimal float
+    return str(round(amount, 3)).rstrip("0")
 
 
 class Image(models.Model):
