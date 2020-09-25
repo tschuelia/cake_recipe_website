@@ -80,14 +80,10 @@ class Recipe(TimeStampedModel):
         return str(serv)
 
     def get_images(self):
-        return Image.objects.filter(recipe__pk__contains=self.pk).order_by(
-            "-is_primary"
-        )
+        return self.image_of.all().order_by("-is_primary")
 
     def get_primary_image(self):
-        return Image.objects.filter(
-            recipe__pk__contains=self.pk, is_primary=True
-        ).first()
+        return self.image_of.first()
 
     def check_view_permissions(self, user):
         # admins may see everything
