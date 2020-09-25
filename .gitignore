@@ -1,5 +1,5 @@
 # exclude Logo dir
-./Logo/*
+Logo/*
 
 # Created by https://www.gitignore.io
 
