@@ -1,3 +1,4 @@
+from decimal import Decimal
 from fractions import Fraction
 from random import randint
 
@@ -65,7 +66,7 @@ class Recipe(TimeStampedModel):
         return self.categories.all().order_by("title")
 
     def get_ingredients(self):
-        return Ingredient.objects.filter(recipe__pk__contains=self.pk)
+        return self.belongs_to.all()
 
     def get_absolute_url(self):
         return reverse("recipe-detail", kwargs={"pk": self.pk})
@@ -103,7 +104,7 @@ class Recipe(TimeStampedModel):
 
 
 class Ingredient(models.Model):
-    amount = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Anzahl")
+    amount = models.DecimalField(max_digits=6, decimal_places=3, verbose_name="Anzahl")
     unit = models.CharField(max_length=20, blank=True, verbose_name="Einheit")
     food = models.ForeignKey(Food, on_delete=models.PROTECT, verbose_name="Zutat")
     notes = models.TextField(blank=True, verbose_name="Notiz")
@@ -113,7 +114,22 @@ class Ingredient(models.Model):
 
     def __str__(self):
         notes = f"({self.notes})" if len(self.notes) > 0 else ""
-        return f"{str(Fraction(self.amount))}{self.unit} {self.food.name} {notes}"
+        return (
+            f"{pretty_print_number(self.amount)} {self.unit} {self.food.name} {notes}"
+        )
+
+
+def pretty_print_number(number):
+    if isinstance(number, int):
+        return str(number)
+
+    # print number as fraction if number is < 1
+    # round to accuracy 1/10
+    if number <= 1:
+        return str(number.quantize(Decimal("1.000")))
+
+    else:
+        return str(round(number))
 
 
 class Image(models.Model):

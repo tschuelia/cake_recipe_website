@@ -1,3 +1,6 @@
+# exclude Logo dir
+./Logo/*
+
 # Created by https://www.gitignore.io
 
 ### OSX ###
