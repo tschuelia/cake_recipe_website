@@ -1,5 +1,6 @@
 body {
     font-family: 'Montserrat', sans-serif;
+    font-size: large;
 }
 
 .navbar-recipes {
@@ -48,11 +49,6 @@ body {
 .recipe-card-link-small:hover {
     color: plum;
     text-decoration: none;
-}
-
-.recipe-card-intro {
-    font-family: 'Shadows Into Light';
-    font-size: 20px;
 }
 
 .recipe-detail-title {
