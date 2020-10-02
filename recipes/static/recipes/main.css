@@ -32,7 +32,7 @@ body {
 
 .recipe-card-link {
     font-family: 'Shadows Into Light';
-    font-size: 30px;
+    font-size: xx-large;
     color: purple;
 }
 
@@ -42,7 +42,7 @@ body {
 }
 
 .recipe-card-link-small {
-    font-size: 20px;
+    font-size: medium;
     color: purple;
 }
 
