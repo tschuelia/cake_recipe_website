@@ -8,6 +8,6 @@
         href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a> {% if not recipe.public %}<i
         class="fas fa-lock fa-xs text-muted"></i>{% endif %} </h5>
     <hr>
-    <p class="card-text text-center">{{ recipe.introduction }}</p>
+    <p class="card-text text-center recipe-card-intro">{{ recipe.introduction }}</p>
   </div>
 </div>

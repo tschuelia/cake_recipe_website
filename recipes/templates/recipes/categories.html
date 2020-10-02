@@ -18,15 +18,15 @@
       <ul class="list-group list-group-flush">
         <li class="list-group-item">Rezepte in dieser Kategorie</li>
         {% if cat.get_recipes|length > 2 %}
-        <li class="list-group-item"><a class="recipe-card-link"
+        <li class="list-group-item"><a class="recipe-card-link-small"
             href="{% url 'recipe-detail' cat.get_recipes.0.pk %}">{{ cat.get_recipes.0.title }}</a></li>
-        <li class="list-group-item"><a class="recipe-card-link"
+        <li class="list-group-item"><a class="recipe-card-link-small"
             href="{% url 'recipe-detail' cat.get_recipes.1.pk %}">{{ cat.get_recipes.1.title }}</a></li>
-        <li class="list-group-item"><a class="recipe-card-link"
+        <li class="list-group-item"><a class="recipe-card-link-small"
             href="{% url 'category-recipes' cat.title %}">...mehr...</a></li>
         {% else %}
         {% for rec in recipes %}
-        <li class="list-group-item"><a class="recipe-card-link"
+        <li class="list-group-item"><a class="recipe-card-link-small"
             href="{% url 'recipe-detail' rec.pk %}">{{ rec.title }}</a></li>
         {% endfor %}
         {% endif %}

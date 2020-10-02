@@ -1,3 +1,7 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+}
+
 .navbar-recipes {
     background-color: #f8f9fa;
 }
@@ -26,12 +30,29 @@
 }
 
 .recipe-card-link {
+    font-family: 'Shadows Into Light';
+    font-size: 30px;
     color: purple;
 }
 
 .recipe-card-link:hover {
     color: plum;
     text-decoration: none;
+}
+
+.recipe-card-link-small {
+    font-size: 20px;
+    color: purple;
+}
+
+.recipe-card-link-small:hover {
+    color: plum;
+    text-decoration: none;
+}
+
+.recipe-card-intro {
+    font-family: 'Shadows Into Light';
+    font-size: 20px;
 }
 
 .recipe-detail-title {
@@ -66,4 +87,8 @@
 
 .btn-outline-recipe {
     outline-color: purple;
+}
+
+.overview-title {
+    font-family: 'Shadows Into Light';
 }
