@@ -1,7 +1,7 @@
 {% extends "recipes/base.html" %}
 {% block content %}
 <div class="row my-4 mx-2">
-  <h2 class="recipe-detail-title text-truncate d-inline">{{ recipe.title }}</h2>
+  <h1 class="recipe-detail-title text-truncate d-inline">{{ recipe.title }}</h1>
   <div class="ml-auto">
     {% if recipe.author == user%}
     <!-- Allow update and delete -->
