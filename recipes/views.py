@@ -1,4 +1,5 @@
 from decimal import Decimal
+from fractions import Fraction
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -70,6 +71,36 @@ def category_recipe_view(request, title):
 ################################
 # Recipe views
 ################################
+def prettyprint_amount(amount):
+    # convert number to fraction
+    frac = Fraction(amount)
+
+    # number is simple int, so no pretty printing needed
+    if frac.denominator == 1:
+        return str(frac.numerator)
+
+    # check if number is a neat fraction
+    if frac.numerator < frac.denominator and frac.denominator <= 10:
+        return str(frac).rstrip("0")
+
+    # if the number is weirder, round it to a three decimal float
+    return str(round(amount, 3)).rstrip("0")
+
+
+def prettyprint_ingredient(ing):
+    """
+    Print ingredient in the form of: amount unit food_name (notes).
+    For example: 100 g Flour (Type 405)
+    """
+    notes = f"({ing.get_notes()})" if len(ing.get_notes()) > 0 else ""
+    return f"{prettyprint_amount(ing.get_amount())} {ing.get_unit()} {ing.get_food_name()} {notes}"
+
+
+def prettyprint_servings(servings):
+    serv = servings if (servings != int(servings)) else int(servings)
+    return str(serv)
+
+
 def recipe_overview(request):
     recipe_list = get_recipe_list(request.user)
     paginator = Paginator(recipe_list, 15)
@@ -82,13 +113,18 @@ def recipe_detail(request, pk):
     recipe = get_object_or_404(Recipe, pk=pk)
     recipe.check_view_permissions(request.user)
 
+    # if the number of servings was manually requested: recalculate the amounts of the ingredients accordingly
     if request.GET.get("number_servings"):
         servings = Decimal(request.GET.get("number_servings"))
-        ingredients = get_converted_ingredients(recipe, servings)
-
+        ingredients = [
+            prettyprint_ingredient(ing)
+            for ing in get_converted_ingredients(recipe, servings)
+        ]
+    # otherwise print the original ingredients
     else:
-        ingredients = recipe.get_ingredients
-        servings = recipe.get_servings
+        ingredients = [prettyprint_ingredient(ing) for ing in recipe.get_ingredients()]
+        servings = prettyprint_servings(recipe.get_servings())
+
     return render(
         request,
         "recipes/recipe_detail.html",
@@ -207,6 +243,7 @@ def advanced_search(request):
         {
             "search_term": request.GET.get("q"),
             "search_results": results,
+            "num_results": len(results),
             "category_form": category_form,
             "food_form": food_form,
             "exclude_food_form": exclude_food_form,

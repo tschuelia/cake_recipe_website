@@ -1,5 +1,4 @@
 from decimal import Decimal
-from fractions import Fraction
 from random import randint
 
 from django.contrib.auth.models import User
@@ -19,6 +18,13 @@ class Category(models.Model):
         return self.title
 
     def get_recipes(self, user):
+        """
+        Get the list of recipes assigned to this category for the given user, ordered by least recently modified.
+
+        If the given user is no registered and logged in user, only recipes marked as publicly available will be returned.
+        If the given user is logged in, all recipes that are either publicly available or belong to the user will be returned.
+        If the given user is a superuser, all recipes will be returned.
+        """
         if not user.is_authenticated:
             return self.recipe_set.filter(public=True).order_by("-modified")
 
@@ -33,6 +39,9 @@ class Category(models.Model):
         return reverse("category-recipes", kwargs={"title": self.title})
 
     def random_recipe(self, user):
+        """
+        Returns a random recipe of the list of recipes that are accessible for this user.
+        """
         return self.get_recipes(user).order_by("?").first()
 
 
@@ -72,12 +81,7 @@ class Recipe(TimeStampedModel):
         return reverse("recipe-detail", kwargs={"pk": self.pk})
 
     def get_servings(self):
-        serv = (
-            self.servings
-            if (self.servings != int(self.servings))
-            else int(self.servings)
-        )
-        return str(serv)
+        return self.servings
 
     def get_images(self):
         return self.image_of.all().order_by("-is_primary")
@@ -109,26 +113,19 @@ class Ingredient(models.Model):
     )
 
     def __str__(self):
-        notes = f"({self.notes})" if len(self.notes) > 0 else ""
-        return (
-            f"{pretty_print_amount(self.amount)} {self.unit} {self.food.name} {notes}"
-        )
+        return self.food.name
 
+    def get_amount(self):
+        return self.amount
 
-def pretty_print_amount(amount):
-    # convert number to fraction
-    frac = Fraction(amount)
+    def get_unit(self):
+        return self.unit
 
-    # number is simple int, so no pretty printing needed
-    if frac.denominator == 1:
-        return str(frac.numerator)
+    def get_food_name(self):
+        return self.food.name
 
-    # check if number is a neat fraction
-    if frac.numerator < frac.denominator and frac.denominator <= 10:
-        return str(frac).rstrip("0")
-
-    # if the number is weirder, round it to a three decimal float
-    return str(round(amount, 3)).rstrip("0")
+    def get_notes(self):
+        return self.notes
 
 
 class Image(models.Model):
@@ -141,22 +138,20 @@ class Image(models.Model):
     is_primary = models.BooleanField(default=False, verbose_name="Titelbild")
 
     def __str__(self):
-        return self.image.name
+        return self.recipe.title
 
     def get_url(self):
         return self.image.url
 
-    """# resize big images when uploading
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        img = Image.open(self.image.path)
-        if img.height > 1000 or img.width > 1000:
-            output_size = (1000, 1000)
-            img.thumbnail(output_size)
-            img.save(self.image.path)"""
-
 
 def get_recipe_list(user):
+    """
+        Get the list of recipes accessible to the given user, ordered by least recently modified.
+
+        If the given user is no registered and logged in user, only recipes marked as publicly available will be returned.
+        If the given user is logged in, all recipes that are either publicly available or belong to the user will be returned.
+        If the given user is a superuser, all recipes will be returned.
+        """
     if not user.is_authenticated:
         return Recipe.objects.filter(public=True).order_by("-modified")
 
@@ -169,26 +164,45 @@ def get_recipe_list(user):
 def get_search_results(
     user, search_term, categories, foods, excluded_foods, contains_all=False
 ):
+    """
+    Filter list of recipes according to the search. Only the recipes accessible to the given users will be searched.
+    Returns a list of recipes ordered by title.
+
+    search_term: String. Recipe.title, Recipe.instructions, Recipe.notes will be searched for this term
+    categories: List of Category Objects. Only recipes of these categories will be returned. If empty all categories are searched.
+    foods: List of Food Objects. Only recipes containing these foods as ingredients will be returned. If empty all foods are considered.
+    excluded_foods: List of Food Objects. Only recipes NOT containing these foods as ingredients will be returned.
+    contains_all: If True, only recipes containing all Food Objects given in 'food' as ingredient will be returned.
+                  If False, recipes containing any of the foods will be returned.
+    """
+    # get the list of recipes accessible to the given user
     recipes = get_recipe_list(user)
+
+    # if a search term is given: use watson to search the recipe titles, instructions and notes for the given term
     if search_term:
         results = watson.search(search_term)
         pks = [r.object_id_int for r in results]
         recipes = recipes.filter(pk__in=pks)
 
+    # if category objects are given: keep only recipes of these categories
     if categories:
         recipes = recipes.filter(categories__in=categories)
 
+    # if food objects are given: filter recipes according to contains_all
     if foods:
+        # if contains_all is set to True: keep only recipes containing all given foods
         if contains_all:
             for food in foods:
                 ingredients = Ingredient.objects.filter(food=food)
                 recipe_pks = ingredients.values_list("recipe", flat=True)
                 recipes = recipes.filter(pk__in=recipe_pks)
+        # if contains_all is set to False: keep only recipes containing any of the given foods
         else:
             ingredients = Ingredient.objects.filter(food__in=foods)
             recipe_pks = ingredients.values_list("recipe", flat=True)
             recipes = recipes.filter(pk__in=recipe_pks)
 
+    # if exclude food objects are given: keep only recipes containing none of the given foods
     if excluded_foods:
         ingredients = Ingredient.objects.filter(food__in=excluded_foods)
         recipe_pks = ingredients.values_list("recipe", flat=True)
@@ -198,6 +212,9 @@ def get_search_results(
 
 
 def get_converted_ingredients(recipe, new_servings):
+    """
+    Convert the amounts of ingredients for the given recipe according to the new number of servings.
+    """
     ingredients = recipe.get_ingredients()
     servings_original = recipe.servings
     new_ingredients = []

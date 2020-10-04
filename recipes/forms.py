@@ -42,11 +42,18 @@ class IngredientForm(forms.ModelForm):
         fields = ["amount", "unit", "food_name", "notes"]
 
     def __init__(self, *args, **kwargs):
+        """
+        Fill in food_name field with name of the food of the ingredient when updating a recipe.
+        """
         super().__init__(*args, **kwargs)
         if self.instance.pk:
             self.fields["food_name"].initial = self.instance.food.name
 
     def save(self, commit):
+        """
+        When creating a new ingredient: Check if a food with the given name is already stored in the database.
+        If so, use this food object to prevent database littering.
+        """
         ingredient = super().save(commit=False)
         food_obj, created = Food.objects.get_or_create(
             name=self.cleaned_data["food_name"]
@@ -78,6 +85,9 @@ class ImageForm(forms.ModelForm):
         fields = ["image", "is_primary"]
 
     def save(self, commit):
+        """
+        When saving the recipe make sure the recipe pictures are not stored again if they already existed.
+        """
         image = super().save(commit=False)
         img_obj, created = Image.objects.get_or_create(
             image=image.image, recipe=image.recipe
@@ -90,6 +100,10 @@ class ImageForm(forms.ModelForm):
 
 class BaseImageFormset(BaseInlineFormSet):
     def clean(self):
+        """
+        Before saving check if at most one image is selected as primary image.
+        Otherwise send validation error.
+        """
         super().clean()
         if any(self.errors):
             return
