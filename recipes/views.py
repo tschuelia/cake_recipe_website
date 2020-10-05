@@ -14,12 +14,14 @@ from django.views.generic import CreateView, DeleteView, ListView
 from django_addanother.views import CreatePopupMixin
 
 from .forms import (
+    CategoryForm,
     CategoryFilterForm,
     ExcludeFoodForm,
     FoodFilterForm,
     ImageFormSet,
     IngredientFormSet,
     RecipeForm,
+    RecipeSelectForm,
 )
 from .models import (
     Category,
@@ -42,10 +44,48 @@ def categories_overview(request):
     categories = []
     for cat in cats:
         categories.append((cat, cat.get_recipes(request.user)))
-    return render(request, "recipes/categories.html", {"categories": categories},)
+    return render(
+        request,
+        "recipes/categories.html",
+        {"categories": categories},
+    )
+
+
+def create_category(request):
+    """
+    For category creation using the category overview page
+    """
+    if request.method == "GET":
+        form = CategoryForm()
+        return render(request, "recipes/category_form.html", {"form": form})
+    else:
+        form = CategoryForm(request.POST)
+        if not form.is_valid():
+            return render(request, "recipes/category_form.html", {"form": form})
+        category = form.save()
+        return redirect("select-recipes", pk=category.pk)
+
+
+def select_recipes(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    if request.method == "GET":
+        form = RecipeSelectForm(user=request.user)
+        return render(request, "recipes/select_recipes.html", {"form": form})
+    else:
+        form = RecipeSelectForm(request.user, request.POST)
+        if not form.is_valid():
+            return render(request, "recipes/select_recipes.html", {"form": form})
+        selected_recipes = form.cleaned_data["recipes"]
+        for rec in selected_recipes:
+            rec.categories.add(category)
+        return redirect("category-recipes", title=category.title)
 
 
 class CategoryCreateView(CreatePopupMixin, LoginRequiredMixin, CreateView):
+    """
+    For category creation inside recipe creation
+    """
+
     model = Category
     fields = ["title"]
 
@@ -106,7 +146,11 @@ def recipe_overview(request):
     paginator = Paginator(recipe_list, 15)
     page = request.GET.get("page")
     recipes = paginator.get_page(page)
-    return render(request, "recipes/recipes_overview.html", {"recipes": recipes},)
+    return render(
+        request,
+        "recipes/recipes_overview.html",
+        {"recipes": recipes},
+    )
 
 
 def recipe_detail(request, pk):

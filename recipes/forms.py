@@ -3,7 +3,14 @@ from django.forms import BaseInlineFormSet, inlineformset_factory, modelformset_
 from django.urls import reverse_lazy
 from django_addanother.widgets import AddAnotherWidgetWrapper
 
-from .models import Category, Food, Image, Ingredient, Recipe
+from .models import (
+    Category,
+    Food,
+    Image,
+    Ingredient,
+    Recipe,
+    get_modifiable_recipe_list,
+)
 
 
 class RecipeForm(forms.ModelForm):
@@ -21,7 +28,7 @@ class RecipeForm(forms.ModelForm):
                         "data-actions-box": "true",
                     }
                 ),
-                reverse_lazy("category-create"),
+                reverse_lazy("category-create-popup"),
             ),
             "related_recipes": forms.SelectMultiple(
                 attrs={
@@ -128,7 +135,10 @@ ImageFormSet = inlineformset_factory(
     Image,
     form=ImageForm,
     formset=BaseImageFormset,
-    fields=("image", "is_primary",),
+    fields=(
+        "image",
+        "is_primary",
+    ),
     extra=1,
 )
 
@@ -167,7 +177,8 @@ class FoodFilterForm(forms.Form):
     )
 
     _and = forms.BooleanField(
-        required=False, label="nur Rezepte die alle gewählten Zutaten enthalten",
+        required=False,
+        label="nur Rezepte die alle gewählten Zutaten enthalten",
     )
 
 
@@ -186,3 +197,32 @@ class ExcludeFoodForm(forms.Form):
         required=False,
         label="Nur Rezepte ohne...",
     )
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = "__all__"
+
+
+class RecipeSelectForm(forms.Form):
+    recipes = forms.ModelMultipleChoiceField(
+        queryset=Recipe.objects.none(),
+        widget=forms.SelectMultiple(
+            attrs={
+                "class": "selectpicker",
+                "data-live-search": "true",
+                "data-size": "5",
+                "title": "Rezepte wählen",
+                "data-actions-box": "true",
+            }
+        ),
+        required=False,
+        label="Rezepte wählen",
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+        if user is not None:
+            self.fields["recipes"].queryset = get_modifiable_recipe_list(self.user)

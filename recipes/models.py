@@ -64,7 +64,10 @@ class Recipe(TimeStampedModel):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True)
     notes = models.TextField(verbose_name="Notizen", blank=True)
     related_recipes = models.ManyToManyField(
-        "self", blank=True, symmetrical=False, verbose_name="zugehörige Rezepte",
+        "self",
+        blank=True,
+        symmetrical=False,
+        verbose_name="zugehörige Rezepte",
     )
     public = models.BooleanField(default=False, verbose_name="für alle sichtbar")
 
@@ -146,12 +149,12 @@ class Image(models.Model):
 
 def get_recipe_list(user):
     """
-        Get the list of recipes accessible to the given user, ordered by least recently modified.
+    Get the list of recipes accessible to the given user, ordered by least recently modified.
 
-        If the given user is no registered and logged in user, only recipes marked as publicly available will be returned.
-        If the given user is logged in, all recipes that are either publicly available or belong to the user will be returned.
-        If the given user is a superuser, all recipes will be returned.
-        """
+    If the given user is no registered and logged in user, only recipes marked as publicly available will be returned.
+    If the given user is logged in, all recipes that are either publicly available or belong to the user will be returned.
+    If the given user is a superuser, all recipes will be returned.
+    """
     if not user.is_authenticated:
         return Recipe.objects.filter(public=True).order_by("-modified")
 
@@ -159,6 +162,10 @@ def get_recipe_list(user):
         return Recipe.objects.all().order_by("-modified")
 
     return Recipe.objects.filter(Q(public=True) | Q(author=user)).order_by("-modified")
+
+
+def get_modifiable_recipe_list(user):
+    return Recipe.objects.filter(author=user).order_by("title")
 
 
 def get_search_results(
