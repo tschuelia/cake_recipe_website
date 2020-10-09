@@ -75,7 +75,7 @@ IngredientFormSet = inlineformset_factory(
     Recipe,
     Ingredient,
     form=IngredientForm,
-    extra=1,
+    extra=10,
     widgets={
         "notes": forms.Textarea(attrs={"cols": 20, "rows": 1}),
         "amount": forms.NumberInput(attrs={"style": "width:80px"}),
