@@ -1,6 +1,6 @@
 # Recipe Website
 This website aims to organize recipes for multiple users.
-See rezepte.juliaschmid.com for a demo
+See [my website](https://rezepte.juliaschmid.com/) for a demo
 
 ## Features
 * creating/updating/deleting recipes
