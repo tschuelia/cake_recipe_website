@@ -3,19 +3,34 @@
 <div class="row my-4 mx-2">
   {% if cat_title %}
   <h1 class="overview-title">Rezepte der Kategorie {{ cat_title }}</h3>
-  {% elif username %}
-  <h1 class="overview-title">Rezepte von {{ username }}</h3>
-  {% elif search_term%}
-  <h1 class="overview-title">Rezepte für den Suchbegriff <i>{{ search_term }}</i></h3>
-  {% else %}
-  <h1 class="overview-title">Alle Rezepte</h3>
-  {% endif %}
-  <div class="ml-auto">
-    <a class="btn btn-outline-secondary" href="{% url 'recipe-create' %}">Rezept<i class="col-2 fas fa-plus"></i></a>
-  </div>
+    {% elif username %}
+    <h1 class="overview-title">Rezepte von {{ username }}</h3>
+      {% elif search_term%}
+      <h1 class="overview-title">Rezepte für den Suchbegriff <i>{{ search_term }}</i></h3>
+        {% else %}
+        <h1 class="overview-title">Alle Rezepte</h3>
+          {% endif %}
+          <div class="ml-auto">
+            <a class="btn btn-outline-secondary" href="{% url 'recipe-create' %}"><i class="fas fa-plus"></i></a>
+          </div>
 </div>
 </div>
 {% if recipes %}
+<div class="row mx-2">
+  Sortieren nach:
+  &emsp;
+  <form method="GET">
+    <button class="btn btn-sm btn-outline-secondary {% if sortBy != "Name" %} active {% endif %}"
+      type="submit">Datum</button>
+    <input type="hidden" name="sortBy" value="Date">
+  </form>
+  &emsp;
+  <form method="GET">
+    <button class="btn btn-sm btn-outline-secondary {% if sortBy == "Name" %} active {% endif %}" type="submit">Name
+    <input type="hidden" name="sortBy" value="Name">
+  </form>
+</div>
+<br>
 <div class="card-columns">
   {% for recipe in recipes %}
   {% include "recipes/recipe_card.html" with recipe=recipe %}
@@ -24,5 +39,5 @@
 {% else %}
 <p>Bisher keine Rezepte</p>
 {% endif %}
-{% include "recipes/pagination.html" with page_obj=recipes %}
+{% include "recipes/pagination.html" with page_obj=recipes sortBy=sortBy%}
 {% endblock content %}

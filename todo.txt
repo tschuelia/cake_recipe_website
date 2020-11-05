@@ -1,2 +1,6 @@
-- markdown editor in RecipeForm
+- markdown editor in RecipeForm -> PageDownWidget
 - Emails versenden bei PWänderung etc.
+
+- Ideen-Seite -> Notizen, Skizzen etc. hochladen
+- Rezepte Startseite Sortierfunktion
+- Kategorien beim Picker in RecipeForm alphabetisch sortieren 

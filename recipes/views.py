@@ -6,11 +6,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db import transaction
-from django.http import HttpResponse
+from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, ListView
+from django.views.generic import CreateView, DeleteView
 from django_addanother.views import CreatePopupMixin
 
 from .forms import (
@@ -97,14 +95,18 @@ class CategoryCreateView(CreatePopupMixin, LoginRequiredMixin, CreateView):
 def category_recipe_view(request, title):
     cat = get_object_or_404(Category, title=title)
     recipe_list = cat.get_recipes(request.user)
+    page = request.GET.get("page")
+    sortBy = request.GET.get("sortBy")
+
+    if sortBy == "Name":
+        recipe_list = recipe_list.order_by(Lower("title"))
 
     paginator = Paginator(recipe_list, 15)
-    page = request.GET.get("page")
     recipes = paginator.get_page(page)
     return render(
         request,
         "recipes/recipes_overview.html",
-        {"recipes": recipes, "cat_title": cat.title},
+        {"recipes": recipes, "cat_title": cat.title, "sortBy": sortBy},
     )
 
 
@@ -142,14 +144,19 @@ def prettyprint_servings(servings):
 
 
 def recipe_overview(request):
-    recipe_list = get_recipe_list(request.user)
-    paginator = Paginator(recipe_list, 15)
     page = request.GET.get("page")
+    sortBy = request.GET.get("sortBy")
+    recipe_list = get_recipe_list(request.user)
+
+    if sortBy == "Name":
+        recipe_list = recipe_list.order_by(Lower("title"))
+
+    paginator = Paginator(recipe_list, 15)
     recipes = paginator.get_page(page)
     return render(
         request,
         "recipes/recipes_overview.html",
-        {"recipes": recipes},
+        {"recipes": recipes, "sortBy": sortBy},
     )
 
 
