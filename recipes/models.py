@@ -90,7 +90,7 @@ class Recipe(TimeStampedModel):
         return self.image_of.all().order_by("-is_primary")
 
     def get_primary_image(self):
-        return self.image_of.first()
+        return self.image_of.filter(is_primary=True).first()
 
     def check_view_permissions(self, user):
         # admins may see everything
