@@ -63,6 +63,7 @@ class Recipe(TimeStampedModel):
     categories = models.ManyToManyField(Category, blank=True, verbose_name="Kategorien")
     author = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True)
     notes = models.TextField(verbose_name="Notizen", blank=True)
+    secret_notes = models.TextField(verbose_name="Geheime Notizen", blank=True)
     related_recipes = models.ManyToManyField(
         "self",
         blank=True,

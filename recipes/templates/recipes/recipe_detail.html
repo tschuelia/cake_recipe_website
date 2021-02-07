@@ -105,6 +105,15 @@
   </div>
 </div>
 {% endif %}
+{% if recipe.secret_notes and recipe.author == user %}
+<br>
+<div class="card">
+  <h7 class="recipe-detail-instructions card-header">Private Notizen</h7>
+  <div class="card-body">
+    <p>{{ recipe.secret_notes|linebreaks }}</p>
+  </div>
+</div>
+{% endif %}
 
 
 {% endblock content %}

@@ -7,10 +7,10 @@
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {% if ingredients.non_form_errors or images.non_form_errors %}
-      <div class="alert alert-danger" role="alert">
-        {{ ingredients.non_form_errors }}
-        {{ images.non_form_errors }}
-      </div>
+    <div class="alert alert-danger" role="alert">
+      {{ ingredients.non_form_errors }}
+      {{ images.non_form_errors }}
+    </div>
     {% endif %}
     <fieldset class="form-group">
       {% if form.instance.pk %}
@@ -75,6 +75,9 @@
       <div class="form-group mb-0">
         {{ form.notes|as_crispy_field }}
       </div>
+      <div class="form-group mb-0">
+        {{ form.secret_notes|as_crispy_field }}
+      </div>
       <div class="row">
         <div class="col md-6">
           <div class="form-group mb-0">
@@ -87,7 +90,7 @@
           </div>
         </div>
       </div>
-      
+
 
       <div>
         <h5 class="mt-5">Bilder</h5>
@@ -133,17 +136,17 @@
 {% endblock content %}
 
 {% block javascript %}
-    <script src="{% static 'recipes/selectpicker.js' %}"></script>
-    <script type="text/javascript">
-    // Hack to re-render the category selector if a new category was added
-    // listening to on('change') does not work
-      let oldLen = 0
-      setInterval(() => {
-        const newLen = $('#id_categories option').length
-        if (newLen != oldLen) {
-          oldLen = newLen
-          $('#id_categories').selectpicker('refresh')
-        }
-      }, 500)
-    </script>
+<script src="{% static 'recipes/selectpicker.js' %}"></script>
+<script type="text/javascript">
+  // Hack to re-render the category selector if a new category was added
+  // listening to on('change') does not work
+  let oldLen = 0
+  setInterval(() => {
+    const newLen = $('#id_categories option').length
+    if (newLen != oldLen) {
+      oldLen = newLen
+      $('#id_categories').selectpicker('refresh')
+    }
+  }, 500)
+</script>
 {% endblock javascript %}
