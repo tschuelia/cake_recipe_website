@@ -305,7 +305,7 @@ def advanced_search(request):
 #######
 # Image Gallery
 def image_gallery(request):
-    categories = Category.objects.all()
+    categories = Category.objects.all().order_by("title")
     cats_and_images = [(c, c.get_primary_images(request.user)) for c in categories]
     print(cats_and_images)
     return render(
