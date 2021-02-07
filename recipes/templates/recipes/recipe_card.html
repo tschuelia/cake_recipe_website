@@ -9,5 +9,11 @@
         class="fas fa-lock fa-xs text-muted"></i>{% endif %} </h5>
     <hr>
     <p class="card-text text-center recipe-card-intro">{{ recipe.introduction }}</p>
+    <hr>
+    <div class="text-center">
+      {% for cat in recipe.get_categories %}
+        <a href="{% url 'category-recipes' cat.title %}" class="badge badge-light mr-2">{{ cat.title }}</a>
+      {% endfor %}
+    </div>
   </div>
 </div>
