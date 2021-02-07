@@ -1,0 +1,14 @@
+{% extends "recipes/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% for cat, images in cats_and_images %}
+{% if images %}
+<h3><a class="recipe-card-link mx-2"
+        href="{% url 'category-recipes' cat.title %}">{{ cat.title }}</a>
+</h3>
+<div class="mx-4 my-4">
+    {% include "recipes/photoswipe.html" with images=images %}
+</div>
+{% endif %}
+{% endfor %}
+{% endblock content %}

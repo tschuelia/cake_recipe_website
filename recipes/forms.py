@@ -6,7 +6,7 @@ from django_addanother.widgets import AddAnotherWidgetWrapper
 from .models import (
     Category,
     Food,
-    Image,
+    RecipeImage,
     Ingredient,
     Recipe,
     get_modifiable_recipe_list,
@@ -84,11 +84,11 @@ IngredientFormSet = inlineformset_factory(
 )
 
 
-class ImageForm(forms.ModelForm):
+class RecipeImageForm(forms.ModelForm):
     image = forms.ImageField(label="")
 
     class Meta:
-        model = Image
+        model = RecipeImage
         fields = ["image", "is_primary"]
 
     def save(self, commit):
@@ -96,7 +96,7 @@ class ImageForm(forms.ModelForm):
         When saving the recipe make sure the recipe pictures are not stored again if they already existed.
         """
         image = super().save(commit=False)
-        img_obj, created = Image.objects.get_or_create(
+        img_obj, created = RecipeImage.objects.get_or_create(
             image=image.image, recipe=image.recipe
         )
         img_obj.is_primary = image.is_primary
@@ -132,8 +132,8 @@ class BaseImageFormset(BaseInlineFormSet):
 
 ImageFormSet = inlineformset_factory(
     Recipe,
-    Image,
-    form=ImageForm,
+    RecipeImage,
+    form=RecipeImageForm,
     formset=BaseImageFormset,
     fields=(
         "image",

@@ -10,6 +10,8 @@ from django.urls import reverse
 from model_utils.models import TimeStampedModel
 from watson import search as watson
 
+from .utils import get_image_size
+
 
 class Category(models.Model):
     title = models.CharField(max_length=255, unique=True, verbose_name="Name")
@@ -18,22 +20,8 @@ class Category(models.Model):
         return self.title
 
     def get_recipes(self, user):
-        """
-        Get the list of recipes assigned to this category for the given user, ordered by least recently modified.
-
-        If the given user is no registered and logged in user, only recipes marked as publicly available will be returned.
-        If the given user is logged in, all recipes that are either publicly available or belong to the user will be returned.
-        If the given user is a superuser, all recipes will be returned.
-        """
-        if not user.is_authenticated:
-            return self.recipe_set.filter(public=True).order_by("-modified")
-
-        if user.is_superuser:
-            return self.recipe_set.all().order_by("-modified")
-
-        return self.recipe_set.filter(Q(public=True) | Q(author=user)).order_by(
-            "-modified"
-        )
+        recipes = self.recipe_set.order_by("-modified")
+        return filter_recipe_list(user, recipes)
 
     def get_absolute_url(self):
         return reverse("category-recipes", kwargs={"title": self.title})
@@ -43,6 +31,11 @@ class Category(models.Model):
         Returns a random recipe of the list of recipes that are accessible for this user.
         """
         return self.get_recipes(user).order_by("?").first()
+
+    def get_primary_images(self, user):
+        recipes = self.recipe_set.order_by("-modified")
+        recipes = filter_recipe_list(user, recipes, filter_empty=False)
+        return [rec.get_primary_image() for rec in recipes if rec.get_primary_image()]
 
 
 class Food(models.Model):
@@ -54,12 +47,19 @@ class Food(models.Model):
 
 class Recipe(TimeStampedModel):
     title = models.CharField(max_length=255, verbose_name="Titel")
-    introduction = models.TextField(verbose_name="Einleitung", null=True)
+    introduction = models.TextField(verbose_name="Einleitung", blank=True)
     servings = models.DecimalField(
-        max_digits=5, decimal_places=2, default=1, verbose_name="Portionen"
+        max_digits=5,
+        decimal_places=2,
+        default=1,
+        verbose_name="Portionen",
+        blank=True,
+        null=True,
     )
-    directions = models.TextField(verbose_name="Zubereitung")
-    prep_time = models.CharField(max_length=100, verbose_name="Zubereitungszeit")
+    directions = models.TextField(verbose_name="Zubereitung", blank=True)
+    prep_time = models.CharField(
+        max_length=100, verbose_name="Zubereitungszeit", blank=True
+    )
     categories = models.ManyToManyField(Category, blank=True, verbose_name="Kategorien")
     author = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True)
     notes = models.TextField(verbose_name="Notizen", blank=True)
@@ -132,7 +132,7 @@ class Ingredient(models.Model):
         return self.notes
 
 
-class Image(models.Model):
+class RecipeImage(models.Model):
     image = models.ImageField(
         default="default.jpg", upload_to="recipe_pics", verbose_name="Bilder"
     )
@@ -147,6 +147,14 @@ class Image(models.Model):
     def get_url(self):
         return self.image.url
 
+    def get_height(self):
+        height, _ = get_image_size(self.image)
+        return height
+
+    def get_width(self):
+        _, width = get_image_size(self.image)
+        return width
+
 
 def get_recipe_list(user):
     """
@@ -156,13 +164,8 @@ def get_recipe_list(user):
     If the given user is logged in, all recipes that are either publicly available or belong to the user will be returned.
     If the given user is a superuser, all recipes will be returned.
     """
-    if not user.is_authenticated:
-        return Recipe.objects.filter(public=True).order_by("-modified")
-
-    if user.is_superuser:
-        return Recipe.objects.all().order_by("-modified")
-
-    return Recipe.objects.filter(Q(public=True) | Q(author=user)).order_by("-modified")
+    recipes = Recipe.objects.all().order_by("-modified")
+    return filter_recipe_list(user, recipes)
 
 
 def get_modifiable_recipe_list(user):
@@ -239,3 +242,30 @@ def get_converted_ingredients(recipe, new_servings):
             )
         )
     return new_ingredients
+
+
+def filter_recipe_list(user, recipes, filter_empty=True):
+    """
+    If the given user is a superuser, all recipes will be returned.
+    If the given user is logged in, all recipes that are either publicly available or belong to the user will be returned.
+    If the given user is no registered and logged in user, only recipes marked as publicly available will be returned.
+
+    The recipes are further filtered by whether they are a full recipe or not.
+    """
+    if user.is_superuser:
+        recipes = recipes.all()
+    elif user.is_authenticated:
+        recipes = recipes.filter(Q(public=True) | Q(author=user))
+    else:
+        recipes = recipes.filter(public=True)
+
+    if filter_empty:
+        # full recipe is defined by having
+        # - introduction
+        # - directions
+        # - servings
+        has_intro = ~Q(introduction="")
+        has_dir = ~Q(directions="")
+        has_serv = ~Q(servings=None)
+        recipes = recipes.filter(has_intro & has_dir & has_serv)
+    return recipes

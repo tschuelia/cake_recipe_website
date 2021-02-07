@@ -89,3 +89,12 @@ body {
 .overview-title {
     font-family: 'Shadows Into Light';
 }
+
+.image-gallery-link {
+    color: plum;
+    text-decoration: none;
+}
+
+.image-gallery-link:hover {
+    color: plum;
+}

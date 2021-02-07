@@ -24,7 +24,7 @@ from .forms import (
 from .models import (
     Category,
     Food,
-    Image,
+    RecipeImage,
     Ingredient,
     Recipe,
     get_converted_ingredients,
@@ -299,4 +299,15 @@ def advanced_search(request):
             "food_form": food_form,
             "exclude_food_form": exclude_food_form,
         },
+    )
+
+
+#######
+# Image Gallery
+def image_gallery(request):
+    categories = Category.objects.all()
+    cats_and_images = [(c, c.get_primary_images(request.user)) for c in categories]
+    print(cats_and_images)
+    return render(
+        request, "recipes/image_gallery.html", {"cats_and_images": cats_and_images}
     )

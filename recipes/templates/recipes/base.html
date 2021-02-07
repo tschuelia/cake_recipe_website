@@ -21,6 +21,21 @@
     <link rel="icon" 
       type="image/png" 
     <link rel="shortcut icon" type="image/png" href="{% static 'recipes/favicon.ico' %}"/>  
+    <!-- PhotoSwipe JS Library -->
+    <!-- Core CSS file -->
+    <link rel="stylesheet" href="{% static "recipes/photoswipe.css" %}">
+
+    <!-- Skin CSS file (styling of UI - buttons, caption, etc.)
+     In the folder of skin CSS file there are also:
+     - .png and .svg icons sprite, 
+     - preloader.gif (for browsers that do not support CSS animations) -->
+    <link rel="stylesheet" href="{% static "recipes/default-skin.css" %}">
+
+    <!-- PhotoSwipe JS Library -->
+    <!-- Core JS file -->
+    <script src="{% static "recipes/js/photoswipe.min.js" %}"></script>
+    <!-- UI JS file -->
+    <script src="{% static "recipes/js/photoswipe-ui-default.min.js" %}"></script>
     <title>Recipes</title>
 </head>
 

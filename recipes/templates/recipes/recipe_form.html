@@ -58,7 +58,7 @@
 
         </table>
       </div>
-      <script src="{% static 'recipes/jquery.formset.js' %}"></script>
+      <script src="{% static 'recipes/js/jquery.formset.js' %}"></script>
       <script type="text/javascript">
         $('.ingredients-{{ ingredients.prefix }}').formset({
           addText: 'Zutat <i class="col-2 fas fa-plus"></i>',
@@ -136,7 +136,7 @@
 {% endblock content %}
 
 {% block javascript %}
-<script src="{% static 'recipes/selectpicker.js' %}"></script>
+<script src="{% static 'recipes/js/selectpicker.js' %}"></script>
 <script type="text/javascript">
   // Hack to re-render the category selector if a new category was added
   // listening to on('change') does not work

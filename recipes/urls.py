@@ -10,6 +10,7 @@ urlpatterns = [
     path("recipe/<int:pk>", views.recipe_detail, name="recipe-detail"),
     path("recipe/<int:pk>/update", views.update_recipe, name="recipe-update"),
     path("recipe/<int:pk>/delete", RecipeDeleteView.as_view(), name="recipe-delete"),
+    path("recipes/<str:username>", views.recipes_for_user, name="user-recipes"),
     path("categories", views.categories_overview, name="categories"),
     path(
         "categories/popup/new",
@@ -21,5 +22,5 @@ urlpatterns = [
         "categories/<int:pk>/selectrecipes", views.select_recipes, name="select-recipes"
     ),
     path("categories/<str:title>", views.category_recipe_view, name="category-recipes"),
-    path("recipes/<str:username>", views.recipes_for_user, name="user-recipes"),
+    path("gallery", views.image_gallery, name="image-gallery"),
 ]
