@@ -2,5 +2,9 @@
 - Emails versenden bei PWänderung etc.
 
 - Ideen-Seite -> Notizen, Skizzen etc. hochladen
-- Rezepte Startseite Sortierfunktion
-- Kategorien beim Picker in RecipeForm alphabetisch sortieren 
+- Kategorien beim Picker in RecipeForm alphabetisch sortieren \
+
+Bildergalerie:
+- ähnlich diary -> Name = Link
+ -> falls es ein Rezept gibt: Link zum Rezept
+ -> sonst: Link auf Seite "Dazu gibt es leider noch kein Rezept" + Falls Admin: "jetzt Rezept erstellen"
