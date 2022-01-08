@@ -218,6 +218,7 @@ def get_search_results(
         ingredients = Ingredient.objects.filter(food__in=excluded_foods)
         recipe_pks = ingredients.values_list("recipe", flat=True)
         recipes = recipes.exclude(pk__in=recipe_pks)
+        recipes = recipes.exclude(related_recipes__pk__in=recipe_pks)
 
     return recipes.order_by("title")
 
