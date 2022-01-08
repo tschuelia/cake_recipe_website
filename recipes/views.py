@@ -49,6 +49,7 @@ def categories_overview(request):
     )
 
 
+@login_required
 def create_category(request):
     """
     For category creation using the category overview page
