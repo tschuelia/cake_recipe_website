@@ -1,3 +1,4 @@
+import collections
 from decimal import Decimal
 from random import randint
 
@@ -156,6 +157,48 @@ class RecipeImage(models.Model):
         return width
 
 
+class ShoppingListRecipe(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.PROTECT, verbose_name="Rezept")
+    servings = models.DecimalField(
+        max_digits=6, decimal_places=3, verbose_name="Anzahl"
+    )
+
+
+class ShoppingList(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, default=None, null=True)
+    recipes = models.ManyToManyField(
+        ShoppingListRecipe, blank=True, verbose_name="ShoppingItems"
+    )
+
+    def __str__(self):
+        return f"Einkaufsliste für {self.user.username}: {self.recipes.count()} Rezepte"
+
+    def get_shopping_list_summary(self):
+        # TODO: alle verlinkten Rezepte auch mit einrechnen
+        # for now: verlinkte Rezepte sind nicht einberechnet
+
+        # first: collect all ingredients
+        ingredients = []
+        for recipe in self.recipes.all():
+            ingredients.extend(
+                get_converted_ingredients(recipe.recipe, recipe.servings)
+            )
+
+        list_items = collections.defaultdict(int)
+
+        for ingredient in ingredients:
+            food = ingredient.food.name
+            amount = ingredient.amount
+            unit = ingredient.unit
+            key = (food, unit)
+
+            list_items[key] += amount
+
+        list_items = [(f, u, a) for ((f, u), a) in list_items.items()]
+
+        return sorted(list_items)
+
+
 def get_recipe_list(user):
     """
     Get the list of recipes accessible to the given user, ordered by least recently modified.
@@ -223,16 +266,19 @@ def get_search_results(
     return recipes.order_by("title")
 
 
+def get_ingredients_conversion_factor(recipe, new_servings):
+    return new_servings / recipe.servings
+
+
 def get_converted_ingredients(recipe, new_servings):
     """
     Convert the amounts of ingredients for the given recipe according to the new number of servings.
     """
     ingredients = recipe.get_ingredients()
-    servings_original = recipe.servings
     new_ingredients = []
     for ing in ingredients:
-        amount_original = ing.amount
-        amount_new = (ing.amount / recipe.servings) * new_servings
+        conversion_factor = get_ingredients_conversion_factor(recipe, new_servings)
+        amount_new = ing.amount * conversion_factor
         new_ingredients.append(
             Ingredient(
                 amount=amount_new,
@@ -270,3 +316,12 @@ def filter_recipe_list(user, recipes, filter_empty=True):
         has_serv = ~Q(servings=None)
         recipes = recipes.filter(has_intro & has_dir & has_serv)
     return recipes
+
+
+def get_or_create_shopping_list_for_user(user):
+    list = ShoppingList.objects.filter(user=user)
+
+    if len(list) == 0:
+        return ShoppingList.objects.create(user=user)
+    else:
+        return list[0]

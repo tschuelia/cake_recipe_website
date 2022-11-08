@@ -1,48 +1,70 @@
 import unittest
 
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.test import Client, TestCase
 
 from .forms import IngredientForm, IngredientFormSet
 from .models import Category, Food, Ingredient, Recipe
 
 
-class Test(TestCase):
+class TestRecipeModel(TestCase):
+    def setUp(self):
+        auth_user = User.objects.create_user(
+            "auth_user", "auth_user@test.com", "auth_userPW"
+        )
+        other_user = User.objects.create_user(
+            "other_user", "other_user@test.com", "other_userPW"
+        )
+
+        Recipe.objects.create(title="auth_user_recipe", author=auth_user)
+
+        Recipe.objects.create(title="other_user_recipe", author=other_user)
+
+        Recipe.objects.create(
+            title="other_user_recipe_public", author=other_user, public=True
+        )
+
+    def test_check_recipe_view_permissions_admin(self):
+        """
+        The admin user should be able to view all available recipes.
+        """
+        recipes = Recipe.objects.all()
+        admin = User.objects.create_superuser("admin", "admin@test.com", "adminPW")
+        for rec in recipes:
+            try:
+                rec.check_view_permissions(admin)
+            except PermissionDenied:
+                self.fail("Admin should be able to view all recipes")
+
+    def test_check_recipe_view_permissions_auth_user(self):
+        """The auth_user should be able to access
+            - his own recipe
+            - the public recipe of other_user
+            and should NOT be able to access
+            - the private recipe of other_user
+        """
+        auth_user = User.objects.get(username="auth_user")
+        auth_user_rec = Recipe.objects.get(title="auth_user_recipe")
+        try:
+            auth_user_rec.check_view_permissions(auth_user)
+        except PermissionDenied:
+            self.fail("auth_user should be able to view his own recipe")
+
+        other_user_public_res = Recipe.objects.get(title="other_user_recipe_public")
+        try:
+            other_user_public_res.check_view_permissions(auth_user)
+        except PermissionDenied:
+            self.fail("auth_user should be able to view public recipes")
+
+        other_user_private_res = Recipe.objects.get(title="other_user_recipe")
+        with self.assertRaises(PermissionDenied):
+            other_user_private_res.check_view_permissions(auth_user)
+
+
+"""class Test(TestCase):
     def setUp(self):
         self.client = Client()
-
-    def test_food_and_ingredient_created(self):
-        """
-        Test whether IngredientForm.save() works properly and saves Ingrdient and Food in case both did not exist yet
-        """
-        self.assertEqual(Ingredient.objects.all().count(), 0)
-        self.assertEqual(Food.objects.all().count(), 0)
-
-        ingredient_data = {
-            "amount": 500,
-            "unit": "g",
-            "food_name": "Mehl",
-            "notes": "Note",
-        }
-        form = IngredientForm(data=ingredient_data)
-        form.save(True)
-
-        self.assertEqual(Ingredient.objects.all().count(), 1)
-        self.assertEqual(Food.objects.all().count(), 1)
-
-        food = Food.objects.get(name="Mehl")
-        self.assertEqual(food.name, "Mehl")
-
-        ing = Ingredient.objects.get(amount=500, unit="g")
-        self.assertEqual(ing.amount, 500)
-        self.assertEqual(ing.unit, "g")
-        self.assertEqual(ing.notes, "Note")
-        self.assertEqual(ing.food, food)
-
-        # test whether food object is created only once
-        form = IngredientForm(data=ingredient_data)
-        form.save(True)
-        self.assertEqual(Food.objects.all().count(), 1)
 
     def test_create_recipe_view(self):
         cat1 = Category.objects.create(title="Cat1")
@@ -284,3 +306,4 @@ class Test(TestCase):
         url = f"/recipe/{self.rec1.pk}/delete/"
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+ """

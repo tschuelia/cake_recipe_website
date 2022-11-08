@@ -10,6 +10,7 @@ urlpatterns = [
     path("recipe/<int:pk>", views.recipe_detail, name="recipe-detail"),
     path("recipe/<int:pk>/update", views.update_recipe, name="recipe-update"),
     path("recipe/<int:pk>/delete", RecipeDeleteView.as_view(), name="recipe-delete"),
+    path("recipe/<int:pk>/addtocart", views.add_recipe_to_shopping_list, name="recipe-add-to-cart"),
     path("recipes/<str:username>", views.recipes_for_user, name="user-recipes"),
     path("categories", views.categories_overview, name="categories"),
     path(
@@ -23,4 +24,7 @@ urlpatterns = [
     ),
     path("categories/<str:title>", views.category_recipe_view, name="category-recipes"),
     path("gallery", views.image_gallery, name="image-gallery"),
+    path("shoppinglist", views.display_shopping_list, name="shopping-list"),
+    path("shoppinglist/delete", views.delete_shopping_list, name="delete-shopping-list"),
+    path("shoppinglist/<int:pk>/remove", views.remove_ingredients_from_shopping_list, name="remove-item-from-shopping-list"),
 ]

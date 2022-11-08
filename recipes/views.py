@@ -3,11 +3,11 @@ from fractions import Fraction
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models.functions import Lower
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.generic import CreateView, DeleteView
 from django_addanother.views import CreatePopupMixin
 
@@ -23,11 +23,11 @@ from .forms import (
 )
 from .models import (
     Category,
-    Food,
-    RecipeImage,
-    Ingredient,
     Recipe,
+    ShoppingListRecipe,
+    ShoppingList,
     get_converted_ingredients,
+    get_or_create_shopping_list_for_user,
     get_recipe_list,
     get_search_results,
 )
@@ -182,6 +182,104 @@ def recipe_detail(request, pk):
         "recipes/recipe_detail.html",
         {"recipe": recipe, "ingredients": ingredients, "servings": servings},
     )
+
+
+@login_required
+def add_recipe_to_shopping_list(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    user = request.user
+    recipe.check_view_permissions(user)
+
+    if request.POST.get("numServings"):
+        servings = Decimal(request.POST.get("numServings"))
+    else:
+        servings = recipe.servings
+
+    listItem = ShoppingListRecipe.objects.create(
+        recipe=recipe, servings=servings
+    )
+
+    user_shopping_list = get_or_create_shopping_list_for_user(user)
+
+    user_shopping_list.recipes.add(listItem)
+
+    messages.add_message(
+        request,
+        level=messages.SUCCESS,
+        message=f"Zutaten für Rezept {recipe.title} zu Einkaufsliste hinzugefügt."
+    )
+
+    return redirect(reverse("recipe-detail", args=[pk]) + f"?number_servings={servings}")
+
+
+@login_required
+def display_shopping_list(request):
+    shopping_list = get_or_create_shopping_list_for_user(request.user)
+
+    recipes_and_ingredients = []
+    all_related_recipes = []
+
+    for recipeItem in shopping_list.recipes.all():
+        recipe = recipeItem.recipe
+        servings = recipeItem.servings
+
+        ingredients = [
+            prettyprint_ingredient(ing)
+            for ing in get_converted_ingredients(recipe, servings)
+        ]
+
+        recipes_and_ingredients.append((recipeItem, recipe, ingredients))
+
+        # TODO: related recipes
+        # for now: verlinkte Rezepte sind nicht einberechnet sondern werden nur als Hinweis angezeigt
+        related_recipes = recipe.related_recipes.all()
+        if related_recipes:
+            for related in related_recipes:
+                all_related_recipes.append((related, recipe))
+
+    all_ingredients = shopping_list.get_shopping_list_summary()
+
+    # pretty print all the amounts
+    all_ingredients = [
+        (f, u, prettyprint_amount(a)) for (f, u, a) in all_ingredients
+    ]
+
+    context = {
+        "recipes_and_ingredients": recipes_and_ingredients,
+        "all_ingredients": all_ingredients,
+        "related_recipes": all_related_recipes,
+    }
+
+    return render(request, "recipes/shopping_list.html", context)
+
+
+@login_required
+def delete_shopping_list(request):
+    shopping_list = get_or_create_shopping_list_for_user(request.user)
+
+    if not shopping_list:
+        return redirect("shopping-list")
+
+    for recipe in shopping_list.recipes.all():
+        recipe.delete()
+
+    shopping_list.delete()
+
+    messages.add_message(request, level=messages.INFO, message="Deine Einkaufsliste wurde gelöscht.")
+
+    return redirect("shopping-list")
+
+
+@login_required
+def remove_ingredients_from_shopping_list(request, pk):
+    shopping_list = get_or_create_shopping_list_for_user(request.user)
+    shopping_list_item = get_object_or_404(ShoppingListRecipe, pk=pk)
+    recipe_name = shopping_list_item.recipe.title
+    shopping_list.recipes.remove(shopping_list_item)
+    shopping_list_item.delete()
+
+    messages.add_message(request, level=messages.INFO, message=f"Rezept {recipe_name} von der Einkaufsliste entfernt.")
+    return redirect("shopping-list")
 
 
 @login_required

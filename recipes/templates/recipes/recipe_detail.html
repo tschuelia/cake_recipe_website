@@ -29,7 +29,7 @@
       <div class="col-md-6">
         <!-- introduction -->
         <div class="text-center">
-          <big>{{ recipe.introduction }}</big>
+          <b>{{ recipe.introduction }}</b>
         </div>
         <hr>
         <!-- if not public show lock -->
@@ -80,7 +80,15 @@
 </div>
 <br>
 <div class="card">
-  <h5 class="recipe-detail-ingredients card-header">Zutaten</h5>
+  <h5 class="recipe-detail-ingredients card-header d-flex justify-content-between align-items-center">Zutaten
+      <form method="POST" action="{% url 'recipe-add-to-cart' recipe.id %}">
+        {% csrf_token %}
+         <input type="hidden" id="numServings" name="numServings" value="{{ servings }}">
+        <div class="form-group">
+            <button class="btn btn-outline-dark" type="submit"><i class="fas fa-shopping-cart"></i></button>
+        </div>
+      </form>
+  </h5>
   <div class="card-body">
     <ul>
       {% for ing in ingredients %}

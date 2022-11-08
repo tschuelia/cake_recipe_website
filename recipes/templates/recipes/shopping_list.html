@@ -1,0 +1,78 @@
+{% extends 'recipes/base.html' %}
+{% block content %}
+    <div class="row my-4 mx-2">
+        <h1 class="overview-title">Einkaufliste</h1>
+        <div class="ml-auto">
+            <a href="{% url 'delete-shopping-list' %}" class="btn btn-lg btn-outline-danger"><i class="fas fa-trash"></i></a>
+        </div>
+    </div>
+    <hr>
+    <ul>
+        {% for food, unit, amount in all_ingredients %}
+            <li>{{ food }}: {{ amount }} {{ unit }}</li>
+        {% endfor %}
+    </ul>
+    <hr>
+    <b>Diese Liste besteht aus den Zutaten für:</b>
+    <p><i>Für mehr Details siehe unten</i></p>
+    <ul>
+        {% for _, recipe, _ in recipes_and_ingredients %}
+            <li><a class="recipe-detail-link" href="{% url 'recipe-detail' recipe.pk %}">{{ recipe.title }}</a></li>
+        {% endfor %}
+    </ul>
+
+
+    {% if related_recipes %}
+        <b><i class="fas fa-exclamation-triangle"></i> die Rezepte auf dieser Liste verlinken andere Rezepte:</b>
+        <ul>
+            {% for related_recipe, source_recipe in related_recipes %}
+                <li>
+                    <a class="recipe-detail-link" href="{% url 'recipe-detail' related_recipe.pk %}">
+                        {{ related_recipe.title }}
+                        {% if not related_recipe.public %}<i class="fas fa-lock fa-xs text-muted"></i>{% endif %}
+                    </a>
+                    (verlinkt von: <a class="recipe-detail-link" href="{% url 'recipe-detail' source_recipe.pk %}">{{ source_recipe.title }}</a>)
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <hr>
+    <h3>Die Einkaufsliste enthält folgende Rezepte:</h3>
+    <br>
+    {% for shoppingItem, recipe, ingredients in recipes_and_ingredients %}
+        <div class="card text-black">
+            <h5 class="recipe-detail-ingredients card-header d-flex justify-content-between align-items-center">
+                <a class="recipe-card-link" href="{% url 'recipe-detail' recipe.id %}">{{ recipe.title }}</a>
+                <form method="POST" action="{% url 'remove-item-from-shopping-list' shoppingItem.pk %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <button class="btn btn-outline-danger" type="submit"><i class="fas fa-trash"></i></button>
+                    </div>
+                </form>
+            </h5>
+            <div class="card-body">
+                <ul>
+                {% for ing in ingredients %}
+                    <li>{{ ing }}</li>
+                {% endfor %}
+                </ul>
+                <!-- related recipies -->
+                {% if recipe.related_recipes.all %}
+                    <hr>
+                    <p><i class="fas fa-paperclip fa-lg"></i> Verlinkte Rezepte</p>
+                    <ul>
+                        {% for rec in recipe.related_recipes.all %}
+                            <li>
+                                <a class="recipe-detail-link" href="{% url 'recipe-detail' rec.pk %}">{{ rec.title }}
+                                    {% if not rec.public %}<i class="fas fa-lock fa-xs text-muted"></i>{% endif %}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        <br>
+    {% endfor %}
+
+{% endblock content %}
