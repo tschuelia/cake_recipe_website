@@ -11,14 +11,12 @@
     <table class="table">
         <tr>
             <th>Titel</th>
-            <th>Link</th>
             <th>Notizen</th>
             <th></th>
         </tr>
         {% for idea in ideas %}
         <tr>
-            <td>{{ idea.title  }}</td>
-            <td><a href={{ idea.url }}>{{ idea.url }}</a></td>
+            <td><a href={{ idea.url }}>{{ idea.title }}</a></td>
             <td>{{ idea.notes }}</td>
             <td>
                 <a href="{% url 'update-idea' pk=idea.pk %}" class="btn text-dark"><i class="fas fa-edit fa-sm"></i></a>
