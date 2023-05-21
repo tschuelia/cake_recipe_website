@@ -338,4 +338,4 @@ def get_or_create_shopping_list_for_user(user):
 
 
 def get_idea_list(user):
-    return Idea.objects.filter(user=user).order_by("-title")
+    return Idea.objects.filter(user=user).order_by("title")
