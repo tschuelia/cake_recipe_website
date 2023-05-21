@@ -9,6 +9,7 @@ from .models import (
     RecipeImage,
     Ingredient,
     Recipe,
+    Idea,
     get_modifiable_recipe_list,
 )
 
@@ -226,3 +227,9 @@ class RecipeSelectForm(forms.Form):
         super().__init__(*args, **kwargs)
         if user is not None:
             self.fields["recipes"].queryset = get_modifiable_recipe_list(self.user)
+
+
+class IdeaForm(forms.ModelForm):
+    class Meta:
+        model = Idea
+        exclude = ["user"]

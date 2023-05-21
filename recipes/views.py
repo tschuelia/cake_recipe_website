@@ -20,15 +20,17 @@ from .forms import (
     IngredientFormSet,
     RecipeForm,
     RecipeSelectForm,
+    IdeaForm
 )
 from .models import (
     Category,
     Recipe,
     ShoppingListRecipe,
-    ShoppingList,
+    Idea,
     get_converted_ingredients,
     get_or_create_shopping_list_for_user,
     get_recipe_list,
+    get_idea_list,
     get_search_results,
 )
 
@@ -280,6 +282,57 @@ def remove_ingredients_from_shopping_list(request, pk):
 
     messages.add_message(request, level=messages.INFO, message=f"Rezept {recipe_name} von der Einkaufsliste entfernt.")
     return redirect("shopping-list")
+
+
+@login_required
+def display_ideas_list(request):
+    print("REQUEST ", dir(request))
+    ideas = get_idea_list(request.user)
+
+    return render(request, "recipes/ideas_list.html", {"ideas": ideas})
+
+
+@login_required
+def add_idea(request):
+    if request.method == "GET":
+        form = IdeaForm()
+        return render(request, "recipes/idea_form.html", {"form": form})
+    else:
+        form = IdeaForm(request.POST)
+        if not form.is_valid():
+            return render(request, "recipes/idea_form.html", {"form": form})
+        form.instance.user = request.user
+        form.save()
+
+        return redirect("ideas-list")
+
+
+@login_required
+def update_idea(request, pk):
+    idea = Idea.objects.get(pk=pk)
+    if not request.user == idea.user:
+        raise PermissionDenied
+    if request.method == "GET":
+        form = IdeaForm(instance=idea)
+        return render(request, "recipes/idea_form.html", {"form": form})
+    else:
+        form = IdeaForm(request.POST, instance=idea)
+        if not form.is_valid():
+            return render(request, "recipes/idea_form.html", {"form": form})
+        form.instance.user = request.user
+        form.save()
+
+        return redirect("ideas-list")
+
+
+@login_required
+def delete_idea(request, pk):
+    idea = Idea.objects.get(pk=pk)
+    if not request.user == idea.user:
+        raise PermissionDenied
+    idea.delete()
+
+    return redirect("ideas-list")
 
 
 @login_required

@@ -199,6 +199,16 @@ class ShoppingList(models.Model):
         return sorted(list_items)
 
 
+class Idea(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, default=None, null=True)
+    title = models.CharField(max_length=255, verbose_name="Titel")
+    notes = models.TextField(blank=True, verbose_name="Notiz")
+    url = models.URLField(blank=True, verbose_name="Link")
+
+    def __str__(self):
+        f"{self.title} ({self.url}): {self.notes}"
+
+
 def get_recipe_list(user):
     """
     Get the list of recipes accessible to the given user, ordered by least recently modified.
@@ -319,9 +329,13 @@ def filter_recipe_list(user, recipes, filter_empty=True):
 
 
 def get_or_create_shopping_list_for_user(user):
-    list = ShoppingList.objects.filter(user=user)
+    shopping_list = ShoppingList.objects.filter(user=user)
 
-    if len(list) == 0:
+    if len(shopping_list) == 0:
         return ShoppingList.objects.create(user=user)
     else:
-        return list[0]
+        return shopping_list[0]
+
+
+def get_idea_list(user):
+    return Idea.objects.filter(user=user).order_by("-title")
