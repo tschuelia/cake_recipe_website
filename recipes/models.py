@@ -200,7 +200,7 @@ class ShoppingList(models.Model):
 
 
 class Idea(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, default=None, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=255, verbose_name="Titel")
     notes = models.TextField(blank=True, verbose_name="Notiz")
     url = models.URLField(blank=True, verbose_name="Link")

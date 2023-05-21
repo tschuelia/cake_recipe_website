@@ -286,7 +286,6 @@ def remove_ingredients_from_shopping_list(request, pk):
 
 @login_required
 def display_ideas_list(request):
-    print("REQUEST ", dir(request))
     ideas = get_idea_list(request.user)
 
     return render(request, "recipes/ideas_list.html", {"ideas": ideas})
