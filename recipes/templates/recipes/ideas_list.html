@@ -16,7 +16,7 @@
         </tr>
         {% for idea in ideas %}
         <tr>
-            <td><a href={{ idea.url }}>{{ idea.title }}</a></td>
+            <td><a href={{ idea.url }} target="_blank">{{ idea.title }}</a></td>
             <td>{{ idea.notes }}</td>
             <td>
                 <a href="{% url 'update-idea' pk=idea.pk %}" class="btn text-dark"><i class="fas fa-edit fa-sm"></i></a>
